@@ -10,44 +10,56 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-@Entity
 @Data
-@Table(name="user_details")
+@Entity
+@Table(name = "user_details")
 public class User {
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long Id;
-	
-	@Column(nullable=false,unique=true)
-	private String username;
-	
-	@Column(name="first_name",nullable=false)
-	private String firstname;
-	
-	@Column(name="middle_name",nullable=false)
-	private String middlename;
-	
-	@Column(name="last_name",nullable=false)
-	private String lastname;
-	
-	@Column(name="contact_id",nullable=false)
-	private String contactId;
-	
-	@Column(name="gmail",nullable=false,unique=true)
-	private String gmail;
-	
-	@Column(name="address",nullable=false)
-	private String address;
-	
-	@Column(nullable=false)
-	private String password;
-	
-	
-	@ManyToOne
-	@JoinColumn(name="role_id")
-	private Role role;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	
+    @Column(name = "username", nullable = false, unique = true)
+    private String userName; 
+
+    @Column(nullable = false)
+    private String password; 
+
+    @Column(name = "first_name",nullable=false)
+    private String firstName; 
+
+    @Column(name = "middle_name",nullable=true)
+    private String middleName; 
+    
+    @Column(name = "last_name",nullable=false)
+    private String lastName; 
+    
+    @Column(name = "contact_number",nullable=false)
+    private String contactNumber; 
+
+    @Column(unique = true,nullable=false)
+    private String gmail;
+
+    @Column(name="address",nullable=false)
+    private String address;
+    
+    @Column(name = "city",nullable=false)
+    private String city;
+
+    @Column(name = "pin_code",nullable=false)
+    private String pinCode;
+
+    
+    @ManyToOne
+    @JoinColumn(name = "country_id",nullable=false)
+    private Country country;
+
+    // Relationship to State (it can be null)
+    @ManyToOne
+    @JoinColumn(name = "state_id", nullable = true)
+    private State state;
+
+    @ManyToOne
+    @JoinColumn(name = "role_id",nullable=false)
+    private Role role;
 }
