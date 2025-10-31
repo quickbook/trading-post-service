@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tps.dto.ApiResponse;
 import com.tps.dto.LoginRequest;
-import com.tps.dto.LoginResponse;
 import com.tps.dto.RegisterRequest;
 import com.tps.dto.RegisterResponse;
+import com.tps.dto.UserResponse;
 import com.tps.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,11 +31,11 @@ public class UserController {
 	
 	
 	@PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> loginUser(@Valid @RequestBody LoginRequest loginRequest,HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> loginUser(@Valid @RequestBody LoginRequest loginRequest,HttpServletRequest request) {
         
-		LoginResponse loginData = userService.checkLoginDetails(loginRequest);
+		UserResponse loginData = userService.checkLoginDetails(loginRequest);
 
-        ApiResponse<LoginResponse> response = ApiResponse.<LoginResponse>builder()
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
                 .success(true)
                 .message("Login successful")
                 .data(loginData)

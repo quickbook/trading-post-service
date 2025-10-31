@@ -5,12 +5,10 @@ import org.springframework.stereotype.Service;
 
 import com.tps.dto.LoginRequest;
 import com.tps.dto.RegisterRequest;
-import com.tps.dto.RegisterResponse;
 import com.tps.dto.UserResponse;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.InvalidCredentialsException;
 import com.tps.exceptions.ResourceNotFoundException;
-import com.tps.mapper.UserMapper;
 import com.tps.model.Country;
 import com.tps.model.Role;
 import com.tps.model.State;
@@ -33,8 +31,6 @@ public class UserService {
 	private final CountryRepository countryRepository;
 	private final StateRepository stateRepository;
 	
-	private final UserMapper userMapper;
-	
 	private final PasswordEncoder passwordEncoder;	
 	
 public UserResponse checkLoginDetails(LoginRequest loginRequest) {
@@ -47,14 +43,31 @@ public UserResponse checkLoginDetails(LoginRequest loginRequest) {
             throw new InvalidCredentialsException("Invalid username or password");
         }
 
+        Role userRole = user.getRole();
 
-        
-        return userMapper.mapToUserResponse(user);
+        UserResponse loginData = new UserResponse();
+        loginData.setId(user.getId());
+        loginData.setUserName(user.getUserName());
+	    
+        loginData.setFirstName(user.getFirstName().toUpperCase());
+        loginData.setMiddleName(user.getMiddleName() != null ? user.getMiddleName().toUpperCase() : null);
+        loginData.setLastName(user.getLastName().toUpperCase());
+	    
+        loginData.setContactNumber(user.getContactNumber());
+        loginData.setGmail(user.getGmail());
+       
+	    
+        loginData.setAddress(user.getAddress());
+        loginData.setCity(user.getCity());
+        loginData.setPinCode(user.getPinCode());
+        loginData.setCountryCode(user.getCountry().getCode()); 
+        loginData.setStateCode(user.getState()!=null? user.getState().getCode():null);
+        loginData.setRoleid(userRole.getId());
+        loginData.setRolename(userRole.getName());        
+        return loginData;
     }
 
-
-	public RegisterResponse userRegister(@Valid RegisterRequest registerRequest) {
-		
+	public UserResponse userRegister(@Valid RegisterRequest registerRequest) {
 		if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
 	        throw new DuplicateResourceException("Username  is already taken!");
 	    }
@@ -88,7 +101,7 @@ public UserResponse checkLoginDetails(LoginRequest loginRequest) {
 	    
 	    user.setAddress(registerRequest.getAddress());
 	    user.setCity(registerRequest.getCity());
-	    user.setZipCode(registerRequest.getZipCode());
+	    user.setPinCode(registerRequest.getPinCode());
 	    user.setCountry(country); 
 	    user.setState(state);
 	    
@@ -100,18 +113,15 @@ public UserResponse checkLoginDetails(LoginRequest loginRequest) {
 	    
 	    User savedUser = userRepository.save(user);
 	
-	    return RegisterResponse.builder()
+	    return UserResponse.builder()
 	            .id(savedUser.getId())
 	            .userName(savedUser.getUserName())
 	            .firstName(savedUser.getFirstName())
 	            .lastName(savedUser.getLastName())
 	            .gmail(savedUser.getGmail())
 	            .address(savedUser.getAddress())
-	            .zipCode(savedUser.getZipCode()) 
 	            .countryCode(savedUser.getCountry().getCode())
-	            .countryName(savedUser.getCountry().getName()) 
 	            .stateCode(savedUser.getState() != null ? savedUser.getState().getCode() : null)
-	            .stateName(savedUser.getState() != null ? savedUser.getState().getName() : null) 
 	            .roleName(savedUser.getRole().getName())
 	            .build();
 	}

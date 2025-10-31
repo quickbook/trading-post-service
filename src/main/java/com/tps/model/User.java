@@ -47,7 +47,7 @@ public class User {
     private String city;
 
     @Column(name = "pin_code",nullable=false)
-    private String pinCode;
+    private String zipCode;
 
     
     @ManyToOne

@@ -27,7 +27,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		http
 				// Disable CSRF (since we use JWT)
@@ -58,7 +58,7 @@ public class SecurityConfig {
 
 						// Require authentication for user-related endpoints
 						.requestMatchers("/tradingpost/api/v1/users/**").authenticated()
-
+						
 						// All other endpoints must also be authenticated
 						.anyRequest().authenticated())
 

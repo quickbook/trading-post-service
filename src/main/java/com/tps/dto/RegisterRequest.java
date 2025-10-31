@@ -37,12 +37,11 @@ public class RegisterRequest {
     @NotBlank(message = "City is required")
     private String city;
     
-    @NotBlank(message = "PIN code is required")
-    private String pinCode;
+    @NotBlank(message = "ZIP code is required") 
+    private String zipCode;
     
     @NotBlank(message = "Country code is required")
     private String countryCode;
     
     private String stateCode; 
 }
-
