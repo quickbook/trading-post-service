@@ -1,0 +1,600 @@
+openapi: 3.0.3
+info:
+  title: Trade Post Firms API
+  version: v1
+servers:
+  - url: /api/v1
+
+paths:
+  /firms/users/register:
+    post:
+      summary: Create a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserResponse'
+              examples:
+                example:
+                  value:
+                    success: true
+                    message: User registered successfully
+                    data:
+                      id: 1
+                      userName: john.doe
+                      firstName: JOHN
+                      lastName: DOE
+                      gmail: john.doe@example.com
+                      address: 123 Main St
+                      countryCode: USA
+                      stateCode: NY
+                      roleName: USER
+                    errorDetails: null
+                    status: CREATED
+                    path: /api/v1/firms/users/register
+                    timestamp: 1761890000000
+        '400':
+          $ref: '#/components/responses/Error400Validation'
+        '409':
+          $ref: '#/components/responses/Error409Conflict'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+
+  /firms/users/login:
+    post:
+      summary: Authenticate a user and get role information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/LoginResponse'
+              examples:
+                example:
+                  value:
+                    success: true
+                    message: Login successful
+                    data: { roleid: 2, username: john.doe, rolename: USER }
+                    errorDetails: null
+                    status: OK
+                    path: /api/v1/firms/users/login
+                    timestamp: 1761890000000
+        '400':
+          $ref: '#/components/responses/Error400Validation'
+        '401':
+          $ref: '#/components/responses/Error401InvalidCredentials'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+
+  /firms/filter-options:
+    get:
+      summary: Get all dropdown options for filtering firms
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FirmFilterOptionsDto'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+
+  /firms:
+    get:
+      summary: Get a paginated list of firms with optional filtering
+      parameters:
+        - in: query
+          name: categoryId
+          schema: { type: integer, format: int32 }
+        - in: query
+          name: phaseTypeId
+          schema: { type: integer, format: int32 }
+        - in: query
+          name: minAccount
+          schema: { type: number }
+        - in: query
+          name: country
+          schema: { type: string }
+        - in: query
+          name: updated
+          schema: { type: boolean }
+        - in: query
+          name: page
+          schema: { type: integer, format: int32, minimum: 0 }
+        - in: query
+          name: size
+          schema: { type: integer, format: int32, minimum: 1 }
+        - in: query
+          name: sort
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/FirmPage'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+    post:
+      summary: Create a new firm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Firm' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Firm'
+              examples:
+                example:
+                  value:
+                    success: true
+                    message: Firm created successfully
+                    data:
+                      id: 1
+                      title: FTMO
+                      profitSplit: 80
+                      account: 100000
+                      code: FTMO-100K
+                      updated: true
+                      rating: "4.7"
+                      allRatings: 1234
+                      country: CZ
+                      assets: ["Forex","Indices"]
+                      platforms: [{ src: mt5, alt: MetaTrader 5 }]
+                      maxAllocation: 400000
+                      challenge:
+                        name: Two-Phase
+                        phases:
+                          - { phase: 1, profitTargetPct: 10, minTradingDays: 4, timeLimitDays: 30 }
+                          - { phase: 2, profitTargetPct: 5,  minTradingDays: 4, timeLimitDays: 60 }
+                        maxDailyLossPct: 5
+                        maxOverallLossPct: 10
+                    errorDetails: null
+                    status: CREATED
+                    path: /api/v1/firms
+                    timestamp: 1761890000000
+        '400':
+          $ref: '#/components/responses/Error400Validation'
+        '409':
+          $ref: '#/components/responses/Error409Conflict'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+
+  /firms/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer, format: int32 }
+        description: The ID of the firm
+    get:
+      summary: Get a single firm by its ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Firm'
+        '404':
+          $ref: '#/components/responses/Error404EntityNotFound'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+    put:
+      summary: Fully update an existing firm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Firm' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Firm'
+        '400':
+          $ref: '#/components/responses/Error400Validation'
+        '404':
+          $ref: '#/components/responses/Error404EntityNotFound'
+        '409':
+          $ref: '#/components/responses/Error409Conflict'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+    patch:
+      summary: Partially update an existing firm (simple fields only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Firm' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Firm'
+        '404':
+          $ref: '#/components/responses/Error404EntityNotFound'
+        '409':
+          $ref: '#/components/responses/Error409Conflict'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+    delete:
+      summary: Delete a firm by its ID
+      responses:
+        '200':
+          description: OK (deleted)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        nullable: true
+                        description: No data on delete
+              examples:
+                example:
+                  value:
+                    success: true
+                    message: Firm deleted successfully
+                    data: null
+                    errorDetails: null
+                    status: OK
+                    path: /api/v1/firms/1
+                    timestamp: 1761890000000
+        '404':
+          $ref: '#/components/responses/Error404EntityNotFound'
+        '500':
+          $ref: '#/components/responses/Error500Internal'
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        data: {}
+        errorDetails:
+          $ref: '#/components/schemas/ErrorDetails'
+        status:
+          type: string
+          description: e.g., OK, CREATED, BAD_REQUEST
+        path: { type: string }
+        timestamp:
+          type: integer
+          format: int64
+      required: [success, message, status, path, timestamp]
+
+    ErrorDetails:
+      type: object
+      properties:
+        errorCode: { type: string }
+        errorMessage: { type: string }
+        fieldErrors:
+          type: object
+          additionalProperties: { type: string }
+          nullable: true
+        exception: { type: string }
+
+    RegisterRequest:
+      type: object
+      properties:
+        userName:
+          type: string
+          minLength: 3
+          maxLength: 50
+        firstName: { type: string }
+        middleName: { type: string, nullable: true }
+        lastName: { type: string }
+        contactNumber: { type: string }
+        gmail:
+          type: string
+          pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$'
+        password:
+          type: string
+          minLength: 8
+        address: { type: string }
+        city: { type: string }
+        pinCode: { type: string }
+        countryCode: { type: string }
+        stateCode: { type: string, nullable: true }
+      required: [userName, firstName, lastName, contactNumber, gmail, password, address, city, pinCode, countryCode]
+
+    UserResponse:
+      type: object
+      properties:
+        id: { type: integer, format: int32 }
+        userName: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        gmail: { type: string }
+        address: { type: string }
+        countryCode: { type: string }
+        stateCode: { type: string, nullable: true }
+        roleName: { type: string }
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: The user's username
+        password:
+          type: string
+          description: The user's password
+      required: [username, password]
+
+    LoginResponse:
+      type: object
+      properties:
+        roleid: { type: integer, format: int32 }
+        username: { type: string }
+        rolename: { type: string }
+
+    Platform:
+      type: object
+      properties:
+        src: { type: string }
+        alt: { type: string }
+      required: [src, alt]
+
+    Phase:
+      type: object
+      properties:
+        phase: { type: integer, format: int32 }
+        profitTargetPct: { type: integer, format: int32 }
+        minTradingDays: { type: integer, format: int32 }
+        timeLimitDays: { type: integer, format: int32 }
+      required: [phase, profitTargetPct, minTradingDays, timeLimitDays]
+
+    Challenge:
+      type: object
+      properties:
+        name: { type: string }
+        phases:
+          type: array
+          items: { $ref: '#/components/schemas/Phase' }
+        maxDailyLossPct: { type: integer, format: int32 }
+        maxOverallLossPct: { type: integer, format: int32 }
+      required: [name, phases, maxDailyLossPct, maxOverallLossPct]
+
+    Firm:
+      type: object
+      properties:
+        id: { type: integer, format: int32, nullable: true }
+        title:
+          type: string
+          minLength: 3
+          maxLength: 100
+        profitSplit:
+          type: integer
+          format: int32
+          minimum: 0
+        account:
+          type: number
+          minimum: 0
+        code: { type: string }
+        logo: { type: string, nullable: true }
+        updated: { type: boolean }
+        rating: { type: string, nullable: true }
+        allRatings: { type: integer, format: int32, nullable: true }
+        country: { type: string, nullable: true }
+        flag: { type: string, nullable: true }
+        assets:
+          type: array
+          items: { type: string }
+        platforms:
+          type: array
+          items: { $ref: '#/components/schemas/Platform' }
+          minItems: 1
+        maxAllocation:
+          type: number
+          minimum: 0
+        challenge:
+          $ref: '#/components/schemas/Challenge'
+      required: [title, profitSplit, account, code, updated, assets, platforms, maxAllocation]
+
+    DropdownOptionDto:
+      type: object
+      properties:
+        key: { type: string }
+        label: { type: string }
+      required: [key, label]
+
+    FirmFilterOptionsDto:
+      type: object
+      properties:
+        firmCategories:
+          type: array
+          items: { $ref: '#/components/schemas/DropdownOptionDto' }
+        phaseTypes:
+          type: array
+          items: { $ref: '#/components/schemas/DropdownOptionDto' }
+        sortOptions:
+          type: array
+          items: { $ref: '#/components/schemas/DropdownOptionDto' }
+        minAcctSize:
+          type: array
+          items: { $ref: '#/components/schemas/DropdownOptionDto' }
+
+    FirmPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items: { $ref: '#/components/schemas/Firm' }
+        totalElements: { type: integer, format: int64 }
+        totalPages: { type: integer, format: int32 }
+        size: { type: integer, format: int32 }
+        number: { type: integer, format: int32 }
+        numberOfElements: { type: integer, format: int32 }
+        first: { type: boolean }
+        last: { type: boolean }
+        sort:
+          type: object
+          additionalProperties: true
+      required: [content]
+
+  responses:
+    Error400Validation:
+      description: Validation failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiResponse' }
+          examples:
+            example:
+              value:
+                success: false
+                message: Validation failed
+                data: null
+                errorDetails:
+                  errorCode: VALIDATION_FAILED
+                  errorMessage: Input validation failed
+                  fieldErrors: { userName: "Username is required" }
+                  exception: MethodArgumentNotValidException
+                status: BAD_REQUEST
+                path: /api/v1/firms/users/register
+                timestamp: 1761890000000
+    Error401InvalidCredentials:
+      description: Invalid credentials
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiResponse' }
+          examples:
+            example:
+              value:
+                success: false
+                message: Authentication failed
+                data: null
+                errorDetails:
+                  errorCode: INVALID_CREDENTIALS
+                  errorMessage: Invalid username or password
+                  fieldErrors: null
+                  exception: InvalidCredentialsException
+                status: UNAUTHORIZED
+                path: /api/v1/firms/users/login
+                timestamp: 1761890000000
+    Error404EntityNotFound:
+      description: Entity not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiResponse' }
+          examples:
+            example:
+              value:
+                success: false
+                message: Entity not found
+                data: null
+                errorDetails:
+                  errorCode: ENTITY_NOT_FOUND
+                  errorMessage: Firm not found with id: 999
+                  fieldErrors: null
+                  exception: EntityNotFoundException
+                status: NOT_FOUND
+                path: /api/v1/firms/999
+                timestamp: 1761890000000
+    Error409Conflict:
+      description: Resource conflict
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiResponse' }
+          examples:
+            example:
+              value:
+                success: false
+                message: Resource conflict
+                data: null
+                errorDetails:
+                  errorCode: RESOURCE_CONFLICT
+                  errorMessage: "Username 'john.doe' is already taken!"
+                  fieldErrors: null
+                  exception: DuplicateResourceException
+                status: CONFLICT
+                path: /api/v1/firms/users/register
+                timestamp: 1761890000000
+    Error500Internal:
+      description: Unexpected error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiResponse' }
+          examples:
+            example:
+              value:
+                success: false
+                message: Unexpected error
+                data: null
+                errorDetails:
+                  errorCode: INTERNAL_ERROR
+                  errorMessage: Unexpected error occurred
+                  fieldErrors: null
+                  exception: Exception
+                status: INTERNAL_SERVER_ERROR
+                path: /api/v1/firms/1
+                timestamp: 1761890000000

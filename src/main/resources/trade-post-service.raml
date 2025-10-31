@@ -1,0 +1,453 @@
+#%RAML 1.0
+title: Trade Post Firms API
+version: v1
+baseUri: /api/v1
+
+#
+#  TYPE DEFINITIONS (DTOs)
+#
+types:
+  # --- Generic Response Wrappers ---
+  ApiResponse:
+    type: object
+    properties:
+      success: boolean
+      message: string
+      data?: any
+      errorDetails?: ErrorDetails
+      status: string # e.g., "OK", "CREATED", "BAD_REQUEST"
+      path: string
+      timestamp: number
+  
+  ErrorDetails:
+    type: object
+    properties:
+      errorCode: string    # e.g., "VALIDATION_FAILED"
+      errorMessage: string # e.g., "Input validation failed"
+      fieldErrors?: object  # e.g., { "userName": "is required" }
+      exception: string    # e.g., "MethodArgumentNotValidException"
+  
+  # --- User Types (UserController) ---
+  RegisterRequest:
+    type: object
+    properties:
+      userName: 
+        type: string
+        minLength: 3
+        maxLength: 50
+      firstName: string
+      middleName?: string
+      lastName: string
+      contactNumber: string
+      gmail:
+        type: string
+        pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$"
+      password: 
+        type: string
+        minLength: 8
+      address: string
+      city: string
+      pinCode: string
+      countryCode: string
+      stateCode?: string
+
+  UserResponse:
+    type: object
+    properties:
+      id: integer
+      userName: string
+      firstName: string
+      lastName: string
+      gmail: string
+      address: string
+      countryCode: string
+      stateCode?: string
+      roleName: string
+
+  LoginRequest:
+    type: object
+    properties:
+      username: 
+        type: string
+        description: "The user's username"
+      password: 
+        type: string
+        description: "The user's password"
+
+  LoginResponse:
+    type: object
+    properties:
+      roleid: integer
+      username: string
+      rolename: string
+      
+  # --- Firm Types (FirmsController) ---
+  Firm:
+    type: object
+    properties:
+      id?: integer
+      title: 
+        type: string
+        minLength: 3
+        maxLength: 100
+      profitSplit: 
+        type: integer
+        minimum: 0
+      account: 
+        type: number
+        minimum: 0
+      code: string
+      logo?: string
+      updated: boolean
+      rating?: string
+      allRatings?: integer
+      country?: string
+      flag?: string
+      assets: 
+        type: array
+        items: string
+      platforms: 
+        type: array
+        items: Platform
+        minItems: 1
+      maxAllocation: 
+        type: number
+        minimum: 0
+      challenge?: Challenge
+      
+  Platform:
+    type: object
+    properties:
+      src: string
+      alt: string
+
+  Challenge:
+    type: object
+    properties:
+      name: string
+      phases: 
+        type: array
+        items: Phase
+      maxDailyLossPct: integer
+      maxOverallLossPct: integer
+      
+  Phase:
+    type: object
+    properties:
+      phase: integer
+      profitTargetPct: integer
+      minTradingDays: integer
+      timeLimitDays: integer
+
+  # --- Filter Types ---
+  FirmFilterOptionsDto:
+    type: object
+    properties:
+      firmCategories: DropdownOptionDto[]
+      phaseTypes: DropdownOptionDto[]
+      sortOptions: DropdownOptionDto[]
+      minAcctSize: DropdownOptionDto[]
+
+  FirmCategoryDto:
+    type: object
+    properties:
+      id: integer
+      key: string
+      label: string
+  
+  PhaseTypeDto:
+    type: object
+    properties:
+      id: integer
+      key: string
+      label: string
+      
+  DropdownOptionDto:
+    type: object
+    properties:
+      key: string
+      label: string
+      
+  # --- Pagination Type ---
+  FirmPage:
+    type: object
+    properties:
+      content: Firm[]
+      # ... other pageable properties (totalPages, totalElements, etc.)
+
+#
+#  ERROR RESPONSE TRAITS
+#
+traits:
+  Error400-Validation:
+    responses:
+      400:
+        body:
+          application/json:
+            type: ApiResponse
+            example: !include examples/error-400-validation.json
+  Error400-ResourceNotFound:
+    responses:
+      400:
+        body:
+          application/json:
+            type: ApiResponse
+            example: !include examples/error-400-notfound.json
+  Error401-InvalidCredentials:
+    responses:
+      401:
+        body:
+          application/json:
+            type: ApiResponse
+            example: !include examples/error-401-credentials.json
+  Error404-EntityNotFound:
+    responses:
+      404:
+        body:
+          application/json:
+            type: ApiResponse
+            example: !include examples/error-404-entity.json
+  Error409-Conflict:
+    responses:
+      409:
+        body:
+          application/json:
+            type: ApiResponse
+            example: !include examples/error-409-conflict.json
+  Error500-Internal:
+    responses:
+      500:
+        body:
+          application/json:
+            type: ApiResponse
+            example: !include examples/error-500-internal.json
+
+#
+#  API ENDPOINTS
+#
+/firms:
+  /users:
+    /register:
+      description: Create a new user account.
+      post:
+        is: [Error400-Validation, Error400-ResourceNotFound, Error409-Conflict, Error500-Internal]
+        body:
+          application/json:
+            type: RegisterRequest
+        responses:
+          201:
+            body:
+              application/json:
+                type: ApiResponse
+                properties:
+                  data: UserResponse
+                example: !include examples/register-201.json
+    /login:
+      description: Authenticate a user and get role information.
+      post:
+        is: [Error400-Validation, Error401-InvalidCredentials, Error500-Internal]
+        body:
+          application/json:
+            type: LoginRequest
+        responses:
+          200:
+            body:
+              application/json:
+                type: ApiResponse
+                properties:
+                  data: LoginResponse
+                example: !include examples/login-200.json
+                
+  /filter-options:
+    description: Get all dropdown options for filtering firms.
+    get:
+      is: [Error500-Internal]
+      responses:
+        200:
+          body:
+            application/json:
+              type: ApiResponse
+              properties:
+                data: FirmFilterOptionsDto
+  
+  description: Manage prop trading firms.
+  get:
+    description: Get a paginated list of firms, with optional filtering.
+    is: [Error500-Internal]
+    queryParameters:
+      # FirmQuery parameters
+      categoryId?: integer
+      phaseTypeId?: integer
+      minAccount?: number
+      country?: string
+      updated?: boolean
+      # Pageable parameters
+      page?: integer
+      size?: integer
+      sort?: string
+    responses:
+      200:
+        body:
+          application/json:
+            type: ApiResponse
+            properties:
+              data: FirmPage # Simplified page type
+  post:
+    description: Create a new firm.
+    is: [Error400-Validation, Error409-Conflict, Error500-Internal]
+    body:
+      application/json:
+        type: Firm
+    responses:
+      201:
+        body:
+          application/json:
+            type: ApiResponse
+            properties:
+              data: Firm
+            example: !include examples/firm-201.json
+            
+  /{id}:
+    uriParameters:
+      id:
+        type: integer
+        description: "The ID of the firm"
+    get:
+      description: Get a single firm by its ID.
+      is: [Error404-EntityNotFound, Error500-Internal]
+      responses:
+        200:
+          body:
+            application/json:
+              type: ApiResponse
+              properties:
+                data: Firm
+    put:
+      description: Fully update an existing firm.
+      is: [Error400-Validation, Error404-EntityNotFound, Error409-Conflict, Error500-Internal]
+      body:
+        application/json:
+          type: Firm
+      responses:
+        200:
+          body:
+            application/json:
+              type: ApiResponse
+              properties:
+                data: Firm
+    patch:
+      description: Partially update an existing firm (simple fields only).
+      is: [Error404-EntityNotFound, Error409-Conflict, Error500-Internal]
+      body:
+        application/json:
+          type: Firm # In a real scenario, this might be a partial type
+      responses:
+        200:
+          body:
+            application/json:
+              type: ApiResponse
+              properties:
+                data: Firm
+    delete:
+      description: Delete a firm by its ID.
+      is: [Error404-EntityNotFound, Error500-Internal]
+      responses:
+        200:
+          body:
+            application/json:
+              type: ApiResponse
+              properties:
+                data: nil # No data on delete
+              example: !include examples/delete-200.json
+
+#
+#  EXAMPLE FILES
+#
+examples:
+  register-201.json: |
+    {
+      "success": true, "message": "User registered successfully",
+      "data": {
+        "id": 1, "userName": "john.doe", "firstName": "JOHN", "lastName": "DOE",
+        "gmail": "john.doe@example.com", "address": "123 Main St",
+        "countryCode": "USA", "stateCode": "NY", "roleName": "USER"
+      },
+      "errorDetails": null, "status": "CREATED",
+      "path": "/api/v1/firms/users/register", "timestamp": 1761890000000
+    }
+  login-200.json: |
+    {
+      "success": true, "message": "Login successful",
+      "data": { "roleid": 2, "username": "john.doe", "rolename": "USER" },
+      "errorDetails": null, "status": "OK",
+      "path": "/api/v1/firms/users/login", "timestamp": 1761890000000
+    }
+  firm-201.json: |
+    {
+      "success": true, "message": "Firm created successfully",
+      "data": { "id": 1, "title": "FTMO", "profitSplit": 80, ... },
+      "errorDetails": null, "status": "CREATED",
+      "path": "/api/v1/firms", "timestamp": 1761890000000
+    }
+  delete-200.json: |
+    {
+      "success": true, "message": "Firm deleted successfully", "data": null,
+      "errorDetails": null, "status": "OK",
+      "path": "/api/v1/firms/1", "timestamp": 1761890000000
+    }
+  error-400-validation.json: |
+    {
+      "success": false, "message": "Validation failed", "data": null,
+      "errorDetails": {
+        "errorCode": "VALIDATION_FAILED", "errorMessage": "Input validation failed",
+        "fieldErrors": { "userName": "Username is required" },
+        "exception": "MethodArgumentNotValidException"
+      },
+      "status": "BAD_REQUEST", "path": "/api/v1/firms/users/register", "timestamp": 1761890000000
+    }
+  error-400-notfound.json: |
+    {
+      "success": false, "message": "Resource not found", "data": null,
+      "errorDetails": {
+        "errorCode": "RESOURCE_NOT_FOUND", "errorMessage": "Country not found for code: XYZ",
+        "fieldErrors": null, "exception": "ResourceNotFoundException"
+      },
+      "status": "BAD_REQUEST", "path": "/api/v1/firms/users/register", "timestamp": 1761890000000
+    }
+  error-401-credentials.json: |
+    {
+      "success": false, "message": "Authentication failed", "data": null,
+      "errorDetails": {
+        "errorCode": "INVALID_CREDENTIALS", "errorMessage": "Invalid username or password",
+        "fieldErrors": null, "exception": "InvalidCredentialsException"
+      },
+      "status": "UNAUTHORIZED", "path": "/api/v1/firms/users/login", "timestamp": 1761890000000
+    }
+  error-404-entity.json: |
+    {
+      "success": false, "message": "Entity not found", "data": null,
+      "errorDetails": {
+        "errorCode": "ENTITY_NOT_FOUND", "errorMessage": "Firm not found with id: 999",
+        "fieldErrors": null, "exception": "EntityNotFoundException"
+      },
+      "status": "NOT_FOUND", "path": "/api/v1/firms/999", "timestamp": 1761890000000
+    }
+  error-409-conflict.json: |
+    {
+      "success": false, "message": "Resource conflict", "data": null,
+      "errorDetails": {
+        "errorCode": "RESOURCE_CONFLICT", "errorMessage": "Username 'john.doe' is already taken!",
+        "fieldErrors": null, "exception": "DuplicateResourceException"
+      },
+      "status": "CONFLICT", "path": "/api/v1/firms/users/register", "timestamp": 1761890000000
+    }
+  error-500-internal.json: |
+    {
+      "success": false, "message": "Unexpected error", "data": null,
+      "errorDetails": {
+        "errorCode": "INTERNAL_ERROR", "errorMessage": "Unexpected error occurred",
+        "fieldErrors": null, "exception": "Exception"
+      },
+      "status": "INTERNAL_SERVER_ERROR", "path": "/api/v1/firms/1", "timestamp": 1761890000000
+    }
+

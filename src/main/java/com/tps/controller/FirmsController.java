@@ -32,7 +32,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/firms")
+@RequestMapping("/tradingpost/api/v1/firms")
 @RequiredArgsConstructor
 @Validated
 public class FirmsController {
