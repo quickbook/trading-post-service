@@ -1,8 +1,6 @@
 package com.tps.controller;
 
 import java.net.URI;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,16 +8,28 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.tps.dto.ApiResponse;
 import com.tps.dto.Firm;
 import com.tps.dto.FirmFilterOptionsDto;
-import com.tps.dto.FirmQuery; 
+import com.tps.dto.FirmQuery;
 import com.tps.service.CommonDataService;
 import com.tps.service.FirmCategoryService;
 import com.tps.service.FirmService;
 import com.tps.service.PhaseTypeService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/firms")
@@ -34,7 +44,7 @@ public class FirmsController {
 
     // ---------- Meta / filter options ----------  // Waiting for Other Tables
     @GetMapping("/filter-options")
-    public ResponseEntity<ApiResponse<FirmFilterOptionsDto>> getFilterOptions() {
+    public ResponseEntity<ApiResponse<FirmFilterOptionsDto>> getFilterOptions(HttpServletRequest request) {
         FirmFilterOptionsDto options = new FirmFilterOptionsDto(
                 firmCategoryService.getAllActive(),
                 phaseTypeService.getAllActive(),
@@ -48,6 +58,7 @@ public class FirmsController {
                         .message("Filter options fetched successfully")
                         .data(options)
                         .status(HttpStatus.OK)
+                        .path(request.getRequestURI())
                         .timestamp(System.currentTimeMillis())
                         .build()
         );
@@ -57,7 +68,8 @@ public class FirmsController {
     @GetMapping                     //Pagination is out of my knowledge. Need expert Help
     public ResponseEntity<ApiResponse<Page<Firm>>> listFirms(
             @PageableDefault(size = 20) Pageable pageable,
-            @Valid FirmQuery query // populated from request params
+            @Valid FirmQuery query, // populated from request params
+            HttpServletRequest request
     ) {
         Page<Firm> page = firmService.find(query, pageable); //Lack of Knowledge
 
@@ -67,6 +79,7 @@ public class FirmsController {
                         .message("Firms fetched successfully")
                         .data(page)
                         .status(HttpStatus.OK)
+                        .path(request.getRequestURI())
                         .timestamp(System.currentTimeMillis())
                         .build()
         );
@@ -74,7 +87,7 @@ public class FirmsController {
 
     // ---------- Get by id ----------
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Firm>> getFirm(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Firm>> getFirm(@PathVariable Long id, HttpServletRequest request) {
         Firm firm = firmService.getById(id);
         return ResponseEntity.ok(
                 ApiResponse.<Firm>builder()
@@ -82,6 +95,7 @@ public class FirmsController {
                         .message("Firm fetched successfully")
                         .data(firm)
                         .status(HttpStatus.OK)
+                        .path(request.getRequestURI())
                         .timestamp(System.currentTimeMillis())
                         .build()
         );
@@ -89,7 +103,7 @@ public class FirmsController {
 
     // ---------- Create ----------
     @PostMapping
-    public ResponseEntity<ApiResponse<Firm>> create(@Valid @RequestBody Firm firm) {
+    public ResponseEntity<ApiResponse<Firm>> create(@Valid @RequestBody Firm firm, HttpServletRequest request) {
         Firm created = firmService.createFirm(firm);
 
         return ResponseEntity.created(URI.create("/api/v1/firms/" + created.getId()))
@@ -98,6 +112,7 @@ public class FirmsController {
                         .message("Firm created successfully")
                         .data(created)
                         .status(HttpStatus.CREATED)
+                        .path(request.getRequestURI())
                         .timestamp(System.currentTimeMillis())
                         .build());
     }
@@ -106,7 +121,8 @@ public class FirmsController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Firm>> update(
             @PathVariable Long id,
-            @Valid @RequestBody Firm firmDto
+            @Valid @RequestBody Firm firmDto,
+            HttpServletRequest request
     ) {
         Firm updated = firmService.updateFirm(id, firmDto);
         return ResponseEntity.ok(
@@ -114,6 +130,7 @@ public class FirmsController {
                         .success(true)
                         .message("Firm updated successfully")
                         .data(updated)
+                        .path(request.getRequestURI()) 
                         .status(HttpStatus.OK)
                         .timestamp(System.currentTimeMillis())
                         .build()
@@ -124,7 +141,8 @@ public class FirmsController {
     @PatchMapping("/{id}")   // Still some small bugs
     public ResponseEntity<ApiResponse<Firm>> patch(
             @PathVariable Long id,
-            @RequestBody Firm partial // or a dedicated Patch DTO
+            @Valid @RequestBody Firm partial,
+            HttpServletRequest request
     ) {
         Firm updated = firmService.patchFirm(id, partial);
         return ResponseEntity.ok(
@@ -133,6 +151,7 @@ public class FirmsController {
                         .message("Firm partially updated successfully")
                         .data(updated)
                         .status(HttpStatus.OK)
+                        .path(request.getRequestURI()) 
                         .timestamp(System.currentTimeMillis())
                         .build()
         );
@@ -140,7 +159,7 @@ public class FirmsController {
 
     // ---------- Delete ----------
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Object>> delete(@PathVariable Long id) { 
+    public ResponseEntity<ApiResponse<Object>> delete(@PathVariable Long id, HttpServletRequest request) { 
         firmService.deleteFirm(id);
         // Build the success response body
         ApiResponse<Object> response = ApiResponse.<Object>builder()
@@ -148,6 +167,7 @@ public class FirmsController {
                 .message("Firm deleted successfully")
                 .data(null) // No data needed for delete confirmation
                 .status(HttpStatus.OK) // Use 200 OK
+                .path(request.getRequestURI()) 
                 .timestamp(System.currentTimeMillis())
                 .build();
         return ResponseEntity.ok(response); // Return 200 OK with the body

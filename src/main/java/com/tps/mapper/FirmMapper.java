@@ -244,5 +244,7 @@ public class FirmMapper {
              entity.getChallenge().getPhases().forEach(ph -> ph.setChallenge(entity.getChallenge()));
          }
      }
+     
+     
 }
 

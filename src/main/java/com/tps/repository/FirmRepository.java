@@ -20,4 +20,17 @@ public interface FirmRepository extends JpaRepository<FirmCard, Long>, JpaSpecif
 	           "LEFT JOIN FETCH c.phases " +
 	           "WHERE fc.id = :id")
 	    Optional<FirmCard> findByIdWithDetails(Long id);
+	
+	
+
+	boolean existsByTitle(String title);
+
+
+
+	Optional<FirmCard> findByTitleAndIdNot(String title, Long id);
+
+
+
+	Optional<FirmCard> findByCodeAndIdNot(String code, Long id);
+
 }

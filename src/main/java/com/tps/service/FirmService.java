@@ -13,6 +13,8 @@ import org.springframework.util.StringUtils;
 
 import com.tps.dto.Firm;
 import com.tps.dto.FirmQuery;
+import com.tps.exceptions.DuplicateResourceException;
+import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmMapper;
 import com.tps.model.FirmCard;
 import com.tps.repository.FirmRepository;
@@ -27,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor 
 public class FirmService {
 
-	private final FirmRepository repo;
+	private final FirmRepository firmRepository;
 	private final FirmMapper firmMapper;
 	
 	 @Transactional(readOnly = true)
@@ -35,7 +37,7 @@ public class FirmService {
 	     try {
 	         log.info("Fetching all firms from the database.");
 	         
-	         List<FirmCard> firmEntities = repo.findAll();
+	         List<FirmCard> firmEntities = firmRepository.findAll();
 	
 	         List<Firm> firmDtos = firmEntities.stream()
 	                                           .map(firmMapper::toDto) //Maps entities to DTO's
@@ -52,10 +54,10 @@ public class FirmService {
 	 @Transactional(readOnly = true)
 	 public Firm getById(Long id) {
 	     log.info("Fetching firm by ID: {}", id);
-	     FirmCard entity = repo.findByIdWithDetails(id)
+	     FirmCard entity = firmRepository.findByIdWithDetails(id)
 	             .orElseThrow(() -> {
 	                 log.warn("Firm with ID {} not found.", id);
-	                 return new IllegalArgumentException("Firm not found with id: " + id);
+	                 return new ResourceNotFoundException("Firm not found with id: " + id);
 	             });
 	     return firmMapper.toDto(entity);
 	 }
@@ -64,6 +66,10 @@ public class FirmService {
 	 @Transactional
 	 public Firm createFirm(Firm firm) {
 	     log.info("Attempting to create a new firm with title: {}", firm.getTitle());
+	     
+	     if (firmRepository.existsByTitle(firm.getTitle())) {
+	    	 throw new DuplicateResourceException("A firm with the title '" + firm.getTitle() + "' already exists.");
+	     }
 	     FirmCard entityToSave = firmMapper.toEntity(firm);
 	     
 	     /**
@@ -74,29 +80,40 @@ public class FirmService {
 	      */
 	     firmMapper.linkChildEntities(entityToSave); //map
 	     
-	     FirmCard savedEntity = repo.save(entityToSave);
+	     FirmCard savedEntity = firmRepository.save(entityToSave);
 	     log.info("Successfully created firm with ID: {}", savedEntity.getId());
 	     
 	     return firmMapper.toDto(savedEntity);
 	 }
+	 
+	 
+	 
 	
 	 
 	 @Transactional
 	 public Firm updateFirm(Long id, Firm firm) {
 	     log.info("Attempting to update firm with ID: {}", id);
 	
-	     FirmCard existingEntity = repo.findById(id)
+	     FirmCard existingEntity = firmRepository.findById(id)
 	             .orElseThrow(() -> {
 	                 log.warn("Firm with ID {} not found for update.", id);
-	                 return new RuntimeException("Firm not found with id: " + id);
+	                 return new ResourceNotFoundException("Firm not found with id: " + id);
 	             });
+	     
+	     firmRepository.findByTitleAndIdNot(firm.getTitle(), id)
+         .ifPresent(conflict -> {
+             throw new DuplicateResourceException("A firm with the title '" + firm.getTitle() + "' already exists.");
+         });
+
+     
+	     
 	
 	     firmMapper.updateSimpleFields(existingEntity, firm);
 	
 	     firmMapper.updatePlatformCollection(existingEntity, firm);
 	     firmMapper.updateChallengeRelationship(existingEntity, firm);
 	
-	     FirmCard savedEntity = repo.save(existingEntity);
+	     FirmCard savedEntity = firmRepository.save(existingEntity);
 	     log.info("Successfully updated firm with ID: {}", id);
 	     
 	     return firmMapper.toDto(savedEntity);
@@ -107,12 +124,12 @@ public class FirmService {
 	 public void deleteFirm(Long id) {
 	     log.info("Attempting to delete firm with ID: {}", id);
 	     // 1. Check existence
-	     if (!repo.existsById(id)) {
+	     if (!firmRepository.existsById(id)) {
 	         log.warn("Firm with ID {} not found for deletion.", id);
-	         throw new RuntimeException("Firm not found with id: " + id);
+	         throw new ResourceNotFoundException("Firm not found with id: " + id);
 	     }
 	     // 2. Delete
-	     repo.deleteById(id);
+	     firmRepository.deleteById(id);
 	     log.info("Successfully deleted firm with ID: {}", id);
 	 }
 	
@@ -125,10 +142,10 @@ public class FirmService {
 	 @Transactional
 	 public Firm patchFirm(Long id, Firm partialFirmDto) {
 	     log.info("Attempting to patch firm with ID: {}", id);
-	     FirmCard existingEntity = repo.findById(id) // Fetch existing entity
+	     FirmCard existingEntity = firmRepository.findById(id) // Fetch existing entity
 	             .orElseThrow(() -> {
 	                  log.warn("Firm with ID {} not found for patch.", id);
-	                 return new IllegalArgumentException("Firm not found with id: " + id);
+	                 return new ResourceNotFoundException("Firm not found with id: " + id);
 	             });
 
 	     // Apply updates only for fields that are present (not null or default)
@@ -165,7 +182,7 @@ public class FirmService {
 
 	     log.warn("PATCH operation only updated simple top-level fields for Firm ID: {}. Collections/Nested objects were ignored.", id);
 
-	     FirmCard savedEntity = repo.save(existingEntity);
+	     FirmCard savedEntity = firmRepository.save(existingEntity);
 	     log.info("Successfully patched simple fields for firm with ID: {}", id);
 
 
