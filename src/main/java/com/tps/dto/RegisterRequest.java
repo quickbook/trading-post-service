@@ -15,7 +15,7 @@ public class RegisterRequest {
     @NotBlank(message = "First name is required")
     private String firstName;
     
-    private String middleName; // This one is optional
+    private String middleName; 
     
     @NotBlank(message = "Last name is required")
     private String lastName;
@@ -40,9 +40,9 @@ public class RegisterRequest {
     @NotBlank(message = "ZIP code is required") 
     private String zipCode;
     
-    @NotBlank(message = "Country Name is required")
-    private String countryName;
+    @NotBlank(message = "Country Code is required")
+    private String countryCode;
     
-    @NotBlank(message = "Country Name is required")
+    @NotBlank(message = "State Name is required")
     private String stateName; 
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tps.dto.ApiResponse;
 import com.tps.dto.Firm;
 import com.tps.dto.FirmFilterOptionsDto;
+import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
 import com.tps.service.CommonDataService;
 import com.tps.service.FirmCategoryService;
@@ -141,7 +142,7 @@ public class FirmsController {
     @PatchMapping("/{id}")   // Still some small bugs
     public ResponseEntity<ApiResponse<Firm>> patch(
             @PathVariable Long id,
-            @Valid @RequestBody Firm partial,
+            @Valid @RequestBody FirmPatchRequest partial,
             HttpServletRequest request
     ) {
         Firm updated = firmService.patchFirm(id, partial);

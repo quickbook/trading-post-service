@@ -56,8 +56,8 @@ public class UserService {
 			throw new DuplicateResourceException("Error: Email is already in use!");
 		}
 
-		Country country = countryRepository.findByNameOrCodeIgnoreCase(registerRequest.getCountryName()).orElseThrow(
-				() -> new ResourceNotFoundException("Country not found for code: " + registerRequest.getCountryName()));
+		Country country = countryRepository.findByCode(registerRequest.getCountryCode()).orElseThrow(
+				() -> new ResourceNotFoundException("Country not found for code: " + registerRequest.getCountryCode()));
 
 	 
 		User user = new User();
