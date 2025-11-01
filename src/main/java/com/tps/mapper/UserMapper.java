@@ -20,9 +20,7 @@ public class UserMapper {
                 .address(user.getAddress())
                 .city(user.getCity())
                 .zipCode(user.getZipCode())
-                .countryCode(user.getCountry() != null ? user.getCountry().getCode() : null)
                 .countryName(user.getCountry() != null ? user.getCountry().getName() : null) 
-                .stateCode(user.getState() != null ? user.getState().getCode() : null)
                 .stateName(user.getState() != null ? user.getState().getName() : null) 
                 .roleName(user.getRole() != null ? user.getRole().getName() : null)
                 .build();

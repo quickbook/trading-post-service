@@ -19,9 +19,7 @@ public class RegisterResponse {
     private String gmail;
     private String address;
     private String zipCode; 
-    private String countryCode; 
     private String countryName; 
-    private String stateCode;   
     private String stateName; 
     private String roleName;    
     

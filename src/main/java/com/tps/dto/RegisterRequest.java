@@ -40,8 +40,9 @@ public class RegisterRequest {
     @NotBlank(message = "ZIP code is required") 
     private String zipCode;
     
-    @NotBlank(message = "Country code is required")
-    private String countryCode;
+    @NotBlank(message = "Country Name is required")
+    private String countryName;
     
-    private String stateCode; 
+    @NotBlank(message = "Country Name is required")
+    private String stateName; 
 }

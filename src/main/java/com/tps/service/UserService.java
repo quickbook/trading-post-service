@@ -64,14 +64,14 @@ public UserResponse checkLoginDetails(LoginRequest loginRequest) {
 	    }
 	    
 	 
-	    Country country = countryRepository.findByCode(registerRequest.getCountryCode())
-	            .orElseThrow(() -> new ResourceNotFoundException("Country not found for code: " + registerRequest.getCountryCode()));
+	    Country country = countryRepository.findByNameOrCodeIgnoreCase(registerRequest.getCountryName())
+	            .orElseThrow(() -> new ResourceNotFoundException("Country not found for code: " + registerRequest.getCountryName()));
 	
 	    
 	    State state = null; 
-	    if (registerRequest.getStateCode() != null && !registerRequest.getStateCode().isBlank()) {
-	        state = stateRepository.findByCode(registerRequest.getStateCode())
-	                .orElseThrow(() -> new ResourceNotFoundException("State not found for code: " + registerRequest.getStateCode()));
+	    if (registerRequest.getStateName() != null && !registerRequest.getStateName().isBlank()) {
+	        state = stateRepository.findByNameOrCodeIgnoreCase(registerRequest.getStateName())
+	                .orElseThrow(() -> new ResourceNotFoundException("State not found for code: " + registerRequest.getStateName()));
 	    }
 	
 	    User user = new User();
@@ -108,9 +108,7 @@ public UserResponse checkLoginDetails(LoginRequest loginRequest) {
 	            .gmail(savedUser.getGmail())
 	            .address(savedUser.getAddress())
 	            .zipCode(savedUser.getZipCode()) 
-	            .countryCode(savedUser.getCountry().getCode())
 	            .countryName(savedUser.getCountry().getName()) 
-	            .stateCode(savedUser.getState() != null ? savedUser.getState().getCode() : null)
 	            .stateName(savedUser.getState() != null ? savedUser.getState().getName() : null) 
 	            .roleName(savedUser.getRole().getName())
 	            .build();

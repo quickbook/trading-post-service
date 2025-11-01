@@ -22,9 +22,7 @@ public class UserResponse {
     private String address;
     private String city;
     private String zipCode;   
-    private String countryCode; 
     private String countryName;
-    private String stateCode;   
     private String stateName; 
     private String roleName;    
     
