@@ -13,11 +13,9 @@ import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.UserMapper;
 import com.tps.model.Country;
 import com.tps.model.Role;
-import com.tps.model.State;
 import com.tps.model.User;
 import com.tps.repository.CountryRepository;
 import com.tps.repository.RoleRepository;
-import com.tps.repository.StateRepository;
 import com.tps.repository.UserRepository;
 
 import jakarta.validation.Valid;
@@ -26,92 +24,74 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-	
+
 	private final UserRepository userRepository;
-	
+
 	private final RoleRepository roleRepository;
-	private final CountryRepository countryRepository;
-	private final StateRepository stateRepository;
-	
+	private final CountryRepository countryRepository;	
+
 	private final UserMapper userMapper;
-	
-	private final PasswordEncoder passwordEncoder;	
-	
-public UserResponse checkLoginDetails(LoginRequest loginRequest) {
-        
-        
-        User user = userRepository.findByUserName(loginRequest.getUsername())
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
 
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid username or password");
-        }
+	private final PasswordEncoder passwordEncoder;
 
+	public UserResponse checkLoginDetails(LoginRequest loginRequest) {
 
-        
-        return userMapper.mapToUserResponse(user);
-    }
+		User user = userRepository.findByUserName(loginRequest.getUsername())
+				.orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
 
+		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+			throw new InvalidCredentialsException("Invalid username or password");
+		}
+
+		return userMapper.mapToUserResponse(user);
+	}
 
 	public RegisterResponse userRegister(@Valid RegisterRequest registerRequest) {
-		
+
 		if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
-	        throw new DuplicateResourceException("Username  is already taken!");
-	    }
-	
-	    if (userRepository.existsByGmail(registerRequest.getGmail())) { 
-	        throw new DuplicateResourceException("Error: Email is already in use!");
-	    }
-	    
+			throw new DuplicateResourceException("Username  is already taken!");
+		}
+
+		if (userRepository.existsByGmail(registerRequest.getGmail())) {
+			throw new DuplicateResourceException("Error: Email is already in use!");
+		}
+
+		Country country = countryRepository.findByNameOrCodeIgnoreCase(registerRequest.getCountryName()).orElseThrow(
+				() -> new ResourceNotFoundException("Country not found for code: " + registerRequest.getCountryName()));
+
 	 
-	    Country country = countryRepository.findByNameOrCodeIgnoreCase(registerRequest.getCountryName())
-	            .orElseThrow(() -> new ResourceNotFoundException("Country not found for code: " + registerRequest.getCountryName()));
-	
-	    
-	    State state = null; 
-	    if (registerRequest.getStateName() != null && !registerRequest.getStateName().isBlank()) {
-	        state = stateRepository.findByNameOrCodeIgnoreCase(registerRequest.getStateName())
-	                .orElseThrow(() -> new ResourceNotFoundException("State not found for code: " + registerRequest.getStateName()));
-	    }
-	
-	    User user = new User();
-	    
-	    user.setUserName(registerRequest.getUserName());
-	    
-	    user.setFirstName(registerRequest.getFirstName().toUpperCase());
-	    user.setMiddleName(registerRequest.getMiddleName() != null ? registerRequest.getMiddleName().toUpperCase() : null);
-	    user.setLastName(registerRequest.getLastName().toUpperCase());
-	    
-	    user.setContactNumber(registerRequest.getContactNumber());
-	    user.setGmail(registerRequest.getGmail());
-	    user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-	    
-	    user.setAddress(registerRequest.getAddress());
-	    user.setCity(registerRequest.getCity());
-	    user.setZipCode(registerRequest.getZipCode());
-	    user.setCountry(country); 
-	    user.setState(state);
-	    
-	    // Defualt Role is USER
-	    Role userRole = roleRepository.findByName("USER")
-	            .orElseThrow(() -> new RuntimeException("Error: Default role not found."));
-	    user.setRole(userRole);
-	
-	    
-	    User savedUser = userRepository.save(user);
-	
-	    return RegisterResponse.builder()
-	            .id(savedUser.getId())
-	            .userName(savedUser.getUserName())
-	            .firstName(savedUser.getFirstName())
-	            .lastName(savedUser.getLastName())
-	            .gmail(savedUser.getGmail())
-	            .address(savedUser.getAddress())
-	            .zipCode(savedUser.getZipCode()) 
-	            .countryName(savedUser.getCountry().getName()) 
-	            .stateName(savedUser.getState() != null ? savedUser.getState().getName() : null) 
-	            .roleName(savedUser.getRole().getName())
-	            .build();
+		User user = new User();
+
+		user.setUserName(registerRequest.getUserName());
+
+		user.setFirstName(registerRequest.getFirstName().toUpperCase());
+		user.setMiddleName(
+				registerRequest.getMiddleName() != null ? registerRequest.getMiddleName().toUpperCase() : null);
+		user.setLastName(registerRequest.getLastName().toUpperCase());
+
+		user.setContactNumber(registerRequest.getContactNumber());
+		user.setGmail(registerRequest.getGmail());
+		user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+
+		user.setAddress(registerRequest.getAddress());
+		user.setCity(registerRequest.getCity());
+		user.setZipCode(registerRequest.getZipCode());
+		user.setCountry(country);
+		user.setStateName(registerRequest.getStateName());
+
+		// Defualt Role is USER
+		Role userRole = roleRepository.findByName("USER")
+				.orElseThrow(() -> new RuntimeException("Error: Default role not found."));
+		user.setRole(userRole);
+
+		User savedUser = userRepository.save(user);
+
+		return RegisterResponse.builder().id(savedUser.getId()).userName(savedUser.getUserName())
+				.firstName(savedUser.getFirstName()).lastName(savedUser.getLastName()).gmail(savedUser.getGmail())
+				.address(savedUser.getAddress()).zipCode(savedUser.getZipCode())
+				.countryName(savedUser.getCountry().getName())
+				.stateName(savedUser.getStateName())
+				.roleName(savedUser.getRole().getName()).build();
 	}
 
 }

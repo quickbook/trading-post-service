@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,9 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 @Validated
 @Slf4j
 public class TokenController {
+	
 	private final IpAllowlistService ipAllowlist;
 	private final TokenService tokens;
-
+	
+	@Value("${security.ip-allowlist}")
+	private String allowList;
+	
 	public TokenController(IpAllowlistService ipAllowlist, TokenService tokens) {
 		this.ipAllowlist = ipAllowlist;
 		this.tokens = tokens;
@@ -39,7 +44,7 @@ public class TokenController {
 		if (!ipAllowlist.isAllowed(ip)) {
 			 log.info("IP not in allowlist {}" , ip);
 			return ResponseEntity.status(403)
-					.body(Map.of("error", "forbidden_ip", "error_description", "IP not in allowlist"));
+					.body(Map.of("error", "forbidden_ip", "error_description", "IP not in allowlist","ipAllowlist",allowList,"requestedIP",ip));
 		}
 		TokenCacheEntry entry = tokens.issueOrReuseForIp(ip);
 		long expiresIn = Duration.between(Instant.now(), entry.accessExpiry()).toSeconds();

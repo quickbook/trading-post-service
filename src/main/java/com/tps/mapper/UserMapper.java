@@ -21,7 +21,7 @@ public class UserMapper {
                 .city(user.getCity())
                 .zipCode(user.getZipCode())
                 .countryName(user.getCountry() != null ? user.getCountry().getName() : null) 
-                .stateName(user.getState() != null ? user.getState().getName() : null) 
+                .stateName(user.getStateName() != null ? user.getStateName() : null) 
                 .roleName(user.getRole() != null ? user.getRole().getName() : null)
                 .build();
     }

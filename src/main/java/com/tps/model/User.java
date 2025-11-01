@@ -54,10 +54,8 @@ public class User {
     @JoinColumn(name = "country_id",nullable=false)
     private Country country;
 
-    // Relationship to State (it can be null)
-    @ManyToOne
-    @JoinColumn(name = "state_id", nullable = true)
-    private State state;
+ 
+    private String stateName;
 
     @ManyToOne
     @JoinColumn(name = "role_id",nullable=false)

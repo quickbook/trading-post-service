@@ -21,6 +21,15 @@ public class Role {
 	@Column(name="role_name",nullable=false)
 	private String name;
 	
+	@Column(name = "role_description", length = 255)
+	private String description;
+	
+	@Column(name = "access_level")
+	private Integer accessLevel;
+	
+	@Column(name = "is_active")
+	private Boolean active = true;
+	
 	
 
 }

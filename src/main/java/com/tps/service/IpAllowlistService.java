@@ -9,9 +9,8 @@ import java.util.List;
 
 @Service
 public class IpAllowlistService {
-	private final List<String> allowed;
-
-	  
+	
+	private final List<String> allowed;	  
 
 	  public IpAllowlistService(
 	      @Value("#{'${security.ip-allowlist}'.split(',')}") List<String> allowed) {
