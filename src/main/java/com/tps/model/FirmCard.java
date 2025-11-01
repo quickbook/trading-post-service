@@ -1,14 +1,20 @@
 package com.tps.model;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,10 +30,12 @@ import lombok.EqualsAndHashCode;
 @Table(name="firm_card")
 @Data
 @EqualsAndHashCode(exclude = {"platforms", "challenge", "assets"})
+@EntityListeners(AuditingEntityListener.class) 
 public class FirmCard {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name = "id") 
 	private Long id;
 	
 	@Column(nullable=false)
@@ -48,7 +56,7 @@ public class FirmCard {
 	@Column(name="max_allocation", nullable=false)
 	private BigDecimal maxAllocation;
 
-	@Column(name="profit_split") // Example of explicit naming, though often optional
+	@Column(name="profit_split") 
 	private Integer profitSplit;
 	
 	private String rating;
@@ -58,6 +66,19 @@ public class FirmCard {
 	
 	@Column(nullable=false)
 	private boolean updated;
+	
+	@CreatedDate
+	@Column(name = "created_date", updatable = false)
+	private Instant createdDate;
+
+	@LastModifiedDate
+	@Column(name = "updated_date")
+	private Instant updatedDate;
+
+	@Column(name = "created_by")
+	private Long createdBy;
+	@Column(name = "updated_by")
+	private Long updatedBy;
 	
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "challenge_id", referencedColumnName = "id")

@@ -3,6 +3,7 @@ package com.tps.dto;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -24,6 +25,8 @@ public class FirmPatchRequest {
     private Integer allRatings;
     private String country;
     private String flag;
+    @NotNull(message = "userId is required for auditing")
+    private Long userId;
 
     @Min(value = 0, message = "Max allocation must be a positive number")
     private BigDecimal maxAllocation;

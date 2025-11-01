@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.HashSet; // Import HashSet
 import java.util.Set; // Import Set
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
+import com.tps.dto.Challenge;
 // Import DTOs
 import com.tps.dto.Firm;
-import com.tps.dto.Challenge;
+import com.tps.dto.FirmResponse;
 import com.tps.dto.Phase;
 import com.tps.dto.Platform;
-
 import com.tps.model.FirmCard;
 
 
@@ -95,10 +96,10 @@ public class FirmMapper {
     // --- Entity -> DTO Translation ---
 
     
-    public Firm toDto(FirmCard entity) {
+    public FirmResponse toDto(FirmCard entity) {
         if (entity == null) return null;
 
-        Firm dto = new Firm();
+        FirmResponse dto = new FirmResponse(); // <-- Note: It creates a FirmResponse
         dto.setId(entity.getId());
         dto.setTitle(entity.getTitle());
 
@@ -110,6 +111,10 @@ public class FirmMapper {
         dto.setLogo(entity.getLogo());
         dto.setUpdated(entity.isUpdated());
         dto.setRating(entity.getRating());
+        dto.setCreatedDate(entity.getCreatedDate());
+        dto.setUpdatedDate(entity.getUpdatedDate());
+        dto.setCreatedBy(entity.getCreatedBy());
+        dto.setUpdatedBy(entity.getUpdatedBy());
 
         Integer allRatingsValue = entity.getAllRatings();
         dto.setAllRatings(allRatingsValue != null ? allRatingsValue : 0);
@@ -247,4 +252,3 @@ public class FirmMapper {
      
      
 }
-

@@ -1,6 +1,7 @@
 package com.tps.dto;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 
@@ -13,7 +14,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class Firm {
+public class FirmResponse {
 	
 	 private Long id; 
 	 
@@ -36,9 +37,11 @@ public class Firm {
 	  private String country;
 	  private String flag;
 	  
-	  @NotNull(message = "userId is required for auditing")
-      private Long userId;
-	 
+	  private Instant createdDate;
+	  private Instant updatedDate;
+	  
+	  private Long createdBy; 
+      private Long updatedBy;
 
 	  
 	  @NotNull(message = "Assets list cannot be null (can be empty)")

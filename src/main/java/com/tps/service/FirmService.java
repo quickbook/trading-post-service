@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import com.tps.dto.Firm;
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
+import com.tps.dto.FirmResponse;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmMapper;
@@ -37,13 +38,13 @@ public class FirmService {
 	private final FirmMapper firmMapper;
 	
 	 @Transactional(readOnly = true)
-	 public List<Firm> getAll() {
+	 public List<FirmResponse> getAll() {
 	     try {
 	         log.info("Fetching all firms from the database.");
 	         
 	         List<FirmCard> firmEntities = firmRepository.findAll();
 	
-	         List<Firm> firmDtos = firmEntities.stream()
+	         List<FirmResponse> firmDtos = firmEntities.stream()
 	                                           .map(firmMapper::toDto) //Maps entities to DTO's
 	                                           .collect(Collectors.toList());
 	         
@@ -56,7 +57,7 @@ public class FirmService {
 	 }
 	 
 	 @Transactional(readOnly = true)
-	 public Firm getById(Long id) {
+	 public FirmResponse getById(Long id) {
 	     log.info("Fetching firm by ID: {}", id);
 	     FirmCard entity = firmRepository.findByIdWithDetails(id)
 	             .orElseThrow(() -> {
@@ -68,13 +69,23 @@ public class FirmService {
 	 
 	 
 	 @Transactional
-	 public Firm createFirm(Firm firm) {
+	 public FirmResponse createFirm(Firm firm) {
 	     log.info("Attempting to create a new firm with title: {}", firm.getTitle());
 	     
+	     if(firm.getUserId() == null) {
+             // You can also get this from the SecurityContext if you implement AuditorAware
+             throw new IllegalArgumentException("User ID must be provided to create a firm");
+         }
 	     if (firmRepository.existsByTitle(firm.getTitle())) {
 	    	 throw new DuplicateResourceException("A firm with the title '" + firm.getTitle() + "' already exists.");
 	     }
 	     FirmCard entityToSave = firmMapper.toEntity(firm);
+	     
+	     if(firm.getUserId() == null) {
+             // You can also get this from the SecurityContext if you implement AuditorAware
+             throw new IllegalArgumentException("User ID must be provided to create a firm");
+         }
+	     entityToSave.setCreatedBy(firm.getUserId());
 	     
 	     /**
 	      * Set the necessary bidirectional links between parent and child entities.
@@ -95,7 +106,7 @@ public class FirmService {
 	
 	 
 	 @Transactional
-	 public Firm updateFirm(Long id, Firm firm) {
+	 public FirmResponse updateFirm(Long id, Firm firm) {
 	     log.info("Attempting to update firm with ID: {}", id);
 	
 	     FirmCard existingEntity = firmRepository.findById(id)
@@ -108,10 +119,11 @@ public class FirmService {
          .ifPresent(conflict -> {
              throw new DuplicateResourceException("A firm with the title '" + firm.getTitle() + "' already exists.");
          });
-
-     
 	     
-	
+	     if(firm.getUserId() == null) {
+             throw new IllegalArgumentException("User ID must be provided to update a firm");
+         }
+	     existingEntity.setUpdatedBy(firm.getUserId());
 	     firmMapper.updateSimpleFields(existingEntity, firm);
 	
 	     firmMapper.updatePlatformCollection(existingEntity, firm);
@@ -138,7 +150,7 @@ public class FirmService {
 	 }
 	
 	 @Transactional(readOnly = true) 
-	 public Page<Firm> find(@Valid FirmQuery query, Pageable pageable) {
+	 public Page<FirmResponse> find(@Valid FirmQuery query, Pageable pageable) {
 	     
 	     Specification<FirmCard> spec = (root, criteriaQuery, cb) -> {
 	         
@@ -168,7 +180,7 @@ public class FirmService {
 
 //--- UPDATE (PATCH) ---
 	 @Transactional
-	 public Firm patchFirm(Long id, FirmPatchRequest partialFirmDto) {
+	 public FirmResponse patchFirm(Long id, FirmPatchRequest partialFirmDto) {
 	     log.info("Attempting to patch firm with ID: {}", id);
 	     FirmCard existingEntity = firmRepository.findById(id) // Fetch existing entity
 	             .orElseThrow(() -> {
@@ -210,6 +222,11 @@ public class FirmService {
          if (partialFirmDto.getUpdated() != null) {
              existingEntity.setUpdated(partialFirmDto.getUpdated());
          }
+         
+         if(partialFirmDto.getUserId() == null) {
+             throw new IllegalArgumentException("User ID must be provided to patch a firm");
+         }
+         existingEntity.setUpdatedBy(partialFirmDto.getUserId());
 
 	     log.warn("PATCH operation only updated simple top-level fields for Firm ID: {}. Collections/Nested objects were ignored.", id);
 

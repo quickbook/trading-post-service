@@ -23,6 +23,7 @@ import com.tps.dto.Firm;
 import com.tps.dto.FirmFilterOptionsDto;
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
+import com.tps.dto.FirmResponse; // Import FirmResponse
 import com.tps.service.CommonDataService;
 import com.tps.service.FirmCategoryService;
 import com.tps.service.FirmService;
@@ -67,15 +68,15 @@ public class FirmsController {
 
     // ---------- List with pagination + optional filters ----------
     @GetMapping                     //Pagination is out of my knowledge. Need expert Help
-    public ResponseEntity<ApiResponse<Page<Firm>>> listFirms(
+    public ResponseEntity<ApiResponse<Page<FirmResponse>>> listFirms( // <-- CHANGED
             @PageableDefault(size = 20) Pageable pageable,
             @Valid FirmQuery query, // populated from request params
             HttpServletRequest request
     ) {
-        Page<Firm> page = firmService.find(query, pageable); //Lack of Knowledge
+        Page<FirmResponse> page = firmService.find(query, pageable); // <-- CHANGED
 
         return ResponseEntity.ok(
-                ApiResponse.<Page<Firm>>builder()
+                ApiResponse.<Page<FirmResponse>>builder() // <-- CHANGED
                         .success(true)
                         .message("Firms fetched successfully")
                         .data(page)
@@ -88,10 +89,10 @@ public class FirmsController {
 
     // ---------- Get by id ----------
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Firm>> getFirm(@PathVariable Long id, HttpServletRequest request) {
-        Firm firm = firmService.getById(id);
+    public ResponseEntity<ApiResponse<FirmResponse>> getFirm(@PathVariable Long id, HttpServletRequest request) { // <-- CHANGED
+        FirmResponse firm = firmService.getById(id); // <-- CHANGED
         return ResponseEntity.ok(
-                ApiResponse.<Firm>builder()
+                ApiResponse.<FirmResponse>builder() // <-- CHANGED
                         .success(true)
                         .message("Firm fetched successfully")
                         .data(firm)
@@ -104,11 +105,11 @@ public class FirmsController {
 
     // ---------- Create ----------
     @PostMapping
-    public ResponseEntity<ApiResponse<Firm>> create(@Valid @RequestBody Firm firm, HttpServletRequest request) {
-        Firm created = firmService.createFirm(firm);
+    public ResponseEntity<ApiResponse<FirmResponse>> create(@Valid @RequestBody Firm firm, HttpServletRequest request) { // <-- CHANGED
+        FirmResponse created = firmService.createFirm(firm); // <-- CHANGED
 
         return ResponseEntity.created(URI.create("/api/v1/firms/" + created.getId()))
-                .body(ApiResponse.<Firm>builder()
+                .body(ApiResponse.<FirmResponse>builder() // <-- CHANGED
                         .success(true)
                         .message("Firm created successfully")
                         .data(created)
@@ -120,14 +121,14 @@ public class FirmsController {
 
     // ---------- Update (full) ----------
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Firm>> update(
+    public ResponseEntity<ApiResponse<FirmResponse>> update( // <-- CHANGED
             @PathVariable Long id,
             @Valid @RequestBody Firm firmDto,
             HttpServletRequest request
     ) {
-        Firm updated = firmService.updateFirm(id, firmDto);
+        FirmResponse updated = firmService.updateFirm(id, firmDto); // <-- CHANGED
         return ResponseEntity.ok(
-                ApiResponse.<Firm>builder()
+                ApiResponse.<FirmResponse>builder() // <-- CHANGED
                         .success(true)
                         .message("Firm updated successfully")
                         .data(updated)
@@ -140,14 +141,14 @@ public class FirmsController {
 
     // ---------- Partial update (optional) ----------
     @PatchMapping("/{id}")   // Still some small bugs
-    public ResponseEntity<ApiResponse<Firm>> patch(
+    public ResponseEntity<ApiResponse<FirmResponse>> patch( // <-- CHANGED
             @PathVariable Long id,
             @Valid @RequestBody FirmPatchRequest partial,
             HttpServletRequest request
     ) {
-        Firm updated = firmService.patchFirm(id, partial);
+        FirmResponse updated = firmService.patchFirm(id, partial); // <-- CHANGED
         return ResponseEntity.ok(
-                ApiResponse.<Firm>builder()
+                ApiResponse.<FirmResponse>builder() // <-- CHANGED
                         .success(true)
                         .message("Firm partially updated successfully")
                         .data(updated)
