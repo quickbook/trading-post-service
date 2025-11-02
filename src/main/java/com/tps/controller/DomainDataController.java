@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tps.dto.ApiResponse;
-import com.tps.dto.DropdownOptionDto;
+import com.tps.dto.CountryDto;
+import com.tps.dto.RoleDto;
 import com.tps.service.DomainService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,12 +24,12 @@ public class DomainDataController {
     private final DomainService domainService;
 
     @GetMapping("/countries")
-    public ResponseEntity<ApiResponse<List<DropdownOptionDto>>> getAllCountries(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<List<CountryDto>>> getAllCountries(HttpServletRequest request) {
         
-        List<DropdownOptionDto> countries = domainService.getAllCountries();
+        List<CountryDto> countries = domainService.getAllCountries();
         
         return ResponseEntity.ok(
-            ApiResponse.<List<DropdownOptionDto>>builder()
+            ApiResponse.<List<CountryDto>>builder()
                 .success(true)
                 .message("Countries fetched successfully")
                 .data(countries)
@@ -40,12 +41,12 @@ public class DomainDataController {
     }
 
     @GetMapping("/roles")
-    public ResponseEntity<ApiResponse<List<DropdownOptionDto>>> getAllRoles(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<List<RoleDto>>> getAllRoles(HttpServletRequest request) {
         
-        List<DropdownOptionDto> roles = domainService.getAllRoles();
+        List<RoleDto> roles = domainService.getAllRoles();
         
         return ResponseEntity.ok(
-            ApiResponse.<List<DropdownOptionDto>>builder()
+            ApiResponse.<List<RoleDto>>builder()
                 .success(true)
                 .message("Roles fetched successfully")
                 .data(roles)
