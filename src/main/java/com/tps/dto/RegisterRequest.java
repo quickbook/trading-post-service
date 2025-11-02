@@ -43,6 +43,5 @@ public class RegisterRequest {
     @NotBlank(message = "Country Code is required")
     private String countryCode;
     
-    @NotBlank(message = "State Name is required")
-    private String stateName; 
+     private String stateName; 
 }
