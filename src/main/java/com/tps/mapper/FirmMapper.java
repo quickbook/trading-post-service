@@ -1,24 +1,27 @@
 package com.tps.mapper;
 
 import java.util.ArrayList;
-import java.util.HashSet; // Import HashSet
-import java.util.Set; // Import Set
+import java.util.HashSet; 
+import java.util.Set; 
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+// Import all DTOs
 import com.tps.dto.Challenge;
-// Import DTOs
 import com.tps.dto.Firm;
 import com.tps.dto.FirmResponse;
 import com.tps.dto.Phase;
 import com.tps.dto.Platform;
+
+// Import all Models
 import com.tps.model.FirmCard;
 
 
 @Component
 public class FirmMapper {
 
+    // --- DTO -> Entity ---
 
     public FirmCard toEntity(Firm dto) {
         if (dto == null) return null;
@@ -44,16 +47,12 @@ public class FirmMapper {
 
         if (dto.getPlatforms() != null) {
             entity.setPlatforms(dto.getPlatforms().stream()
-                                   .map(this::toEntity)
+                                   .map(this::toEntity) // maps dto.Platform to model.Platform
                                    .collect(Collectors.toSet())); 
         } else {
              entity.setPlatforms(new HashSet<>()); 
         }
-        if (dto.getChallenge() != null) {
-            entity.setChallenge(toEntity(dto.getChallenge()));
-        } else {
-            entity.setChallenge(null);
-        }
+        // challenge logic was correctly removed from here
         return entity;
     }
 
@@ -69,12 +68,13 @@ public class FirmMapper {
     public com.tps.model.Challenge toEntity(Challenge dto) {
          if (dto == null) return null;
          com.tps.model.Challenge entity = new com.tps.model.Challenge();
+         // Note: ID is not mapped from DTO to entity, this is correct for creation
          entity.setName(dto.getName());
          entity.setMaxDailyLossPct(dto.getMaxDailyLossPct());
          entity.setMaxOverallLossPct(dto.getMaxOverallLossPct());
          if (dto.getPhases() != null) {
              entity.setPhases(dto.getPhases().stream()
-                                .map(this::toEntity)
+                                .map(this::toEntity) // maps dto.Phase to model.Phase
                                 .collect(Collectors.toSet())); 
          } else {
              entity.setPhases(new HashSet<>()); 
@@ -82,7 +82,6 @@ public class FirmMapper {
          return entity;
     }
 
-    /** Translates Phase DTO to Phase Entity. */
     public com.tps.model.Phase toEntity(Phase dto) {
         if (dto == null) return null;
         com.tps.model.Phase entity = new com.tps.model.Phase();
@@ -93,13 +92,12 @@ public class FirmMapper {
         return entity;
     }
 
-    // --- Entity -> DTO Translation ---
+    // --- Entity -> DTO ---
 
-    
     public FirmResponse toDto(FirmCard entity) {
         if (entity == null) return null;
 
-        FirmResponse dto = new FirmResponse(); // <-- Note: It creates a FirmResponse
+        FirmResponse dto = new FirmResponse(); // <-- Correct type
         dto.setId(entity.getId());
         dto.setTitle(entity.getTitle());
 
@@ -121,31 +119,36 @@ public class FirmMapper {
 
         dto.setCountry(entity.getCountry());
         dto.setFlag(entity.getFlag());
-        // Convert Set<String> from Entity to List<String> for DTO
+        
+        // --- THIS IS THE FIX ---
+        // Copy the lazy Set to a new ArrayList *before* streaming.
+        // This fully loads the collection and prevents ConcurrentModificationException.
+        
         if (entity.getAssets() != null) {
-            dto.setAssets(new ArrayList<>(entity.getAssets())); // Convert Set to List
+            dto.setAssets(new ArrayList<>(entity.getAssets()));
         } else {
              dto.setAssets(new ArrayList<>());
         }
-        dto.setMaxAllocation(entity.getMaxAllocation());
-
-        // Convert Set<PlatformEntity> to List<PlatformDto>
+        
         if (entity.getPlatforms() != null) {
-            dto.setPlatforms(entity.getPlatforms().stream()
+            dto.setPlatforms(new ArrayList<>(entity.getPlatforms()).stream() // <-- Fixed
                                    .map(this::toDto)
-                                   .collect(Collectors.toList())); // Collect to List for DTO
+                                   .collect(Collectors.toList()));
         } else {
             dto.setPlatforms(new ArrayList<>());
         }
-        if (entity.getChallenge() != null) {
-            dto.setChallenge(toDto(entity.getChallenge()));
+
+        if (entity.getChallenges() != null) {
+             dto.setChallenges(new ArrayList<>(entity.getChallenges()).stream() // <-- Fixed
+                                 .map(this::toDto)
+                                 .collect(Collectors.toList()));
         } else {
-            dto.setChallenge(null);
+             dto.setChallenges(new ArrayList<>());
         }
+        
         return dto;
     }
 
-     /** Translates Platform Entity to Platform DTO. */
     public Platform toDto(com.tps.model.Platform entity) {
         if (entity == null) return null;
         Platform dto = new Platform();
@@ -154,25 +157,24 @@ public class FirmMapper {
         return dto;
     }
 
-    /** Translates Challenge Entity (using Set) to Challenge DTO (using List). */
     public Challenge toDto(com.tps.model.Challenge entity) {
         if (entity == null) return null;
         Challenge dto = new Challenge();
+        dto.setId(entity.getId());
         dto.setName(entity.getName());
         dto.setMaxDailyLossPct(entity.getMaxDailyLossPct());
         dto.setMaxOverallLossPct(entity.getMaxOverallLossPct());
-         // Convert Set<PhaseEntity> to List<PhaseDto>
+         
         if (entity.getPhases() != null) {
-             dto.setPhases(entity.getPhases().stream()
+             dto.setPhases(new ArrayList<>(entity.getPhases()).stream() // <-- Fixed
                                  .map(this::toDto)
-                                 .collect(Collectors.toList())); // Collect to List for DTO
+                                 .collect(Collectors.toList()));
         } else {
              dto.setPhases(new ArrayList<>());
         }
         return dto;
     }
 
-    /** Translates Phase Entity to Phase DTO. */
     public Phase toDto(com.tps.model.Phase entity) {
         if (entity == null) return null;
         Phase dto = new Phase();
@@ -183,9 +185,8 @@ public class FirmMapper {
         return dto;
     }
 
-    // --- Update Logic Helpers (Adjusted for Set) ---
+    // --- Update Logic Helpers ---
 
-     /** [UPDATE HELPER] Updates simple fields */
      public void updateSimpleFields(FirmCard existingEntity, Firm firmDto) {
          existingEntity.setTitle(firmDto.getTitle());
          existingEntity.setProfitSplit(firmDto.getProfitSplit());
@@ -197,58 +198,38 @@ public class FirmMapper {
          existingEntity.setAllRatings(firmDto.getAllRatings());
          existingEntity.setCountry(firmDto.getCountry());
          existingEntity.setFlag(firmDto.getFlag());
-         // Convert List<String> DTO to Set<String> Entity
          if (firmDto.getAssets() != null) {
-             existingEntity.setAssets(new HashSet<>(firmDto.getAssets())); // Use HashSet
+             existingEntity.setAssets(new HashSet<>(firmDto.getAssets()));
          } else {
-              existingEntity.setAssets(new HashSet<>()); // Use HashSet
+              existingEntity.setAssets(new HashSet<>());
          }
          existingEntity.setMaxAllocation(firmDto.getMaxAllocation());
      }
 
-     /** [UPDATE HELPER] Updates platforms collection (now uses Set) */
      public void updatePlatformCollection(FirmCard existingEntity, Firm firmDto) {
          if (existingEntity.getPlatforms() != null) {
              existingEntity.getPlatforms().clear();
          } else {
-             existingEntity.setPlatforms(new HashSet<>()); // Use HashSet
+             existingEntity.setPlatforms(new HashSet<>());
          }
          if (firmDto.getPlatforms() != null) {
-             // Convert List<Dto> to Set<Entity>
              Set<com.tps.model.Platform> newPlatforms = firmDto.getPlatforms().stream()
                      .map(this::toEntity)
                      .peek(p -> p.setFirmCard(existingEntity))
-                     .collect(Collectors.toSet()); // Collect to Set
+                     .collect(Collectors.toSet());
              existingEntity.getPlatforms().addAll(newPlatforms);
          }
      }
 
-     /** [UPDATE HELPER] Updates challenge relationship (now uses Set for phases) */
-     public void updateChallengeRelationship(FirmCard existingEntity, Firm firmDto) {
-         if (firmDto.getChallenge() != null) {
-             // toEntity now creates ChallengeEntity with Set<PhaseEntity>
-             com.tps.model.Challenge updatedChallengeEntity = toEntity(firmDto.getChallenge());
-             if (existingEntity.getChallenge() != null) {
-                 updatedChallengeEntity.setId(existingEntity.getChallenge().getId());
-             }
-             if (updatedChallengeEntity.getPhases() != null) {
-                 updatedChallengeEntity.getPhases().forEach(ph -> ph.setChallenge(updatedChallengeEntity));
-             }
-             existingEntity.setChallenge(updatedChallengeEntity);
-         } else {
-             existingEntity.setChallenge(null);
-         }
-     }
-
-     /** [CREATE/UPDATE HELPER] Sets bidirectional links */
      public void linkChildEntities(FirmCard entity) {
          if (entity.getPlatforms() != null) {
              entity.getPlatforms().forEach(p -> p.setFirmCard(entity));
          }
-         if (entity.getChallenge() != null && entity.getChallenge().getPhases() != null) {
-             entity.getChallenge().getPhases().forEach(ph -> ph.setChallenge(entity.getChallenge()));
-         }
      }
      
-     
+     public void linkChallengeChildEntities(com.tps.model.Challenge entity) {
+         if (entity.getPhases() != null) {
+             entity.getPhases().forEach(ph -> ph.setChallenge(entity));
+         }
+     }
 }

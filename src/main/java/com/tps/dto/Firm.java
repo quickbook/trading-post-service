@@ -53,6 +53,5 @@ public class Firm {
 	 @Min(value = 0, message = "Max allocation must be a positive number")
 	  private BigDecimal maxAllocation;
 	  
-	  @Valid 
-	  private Challenge challenge;
+	  
 }
