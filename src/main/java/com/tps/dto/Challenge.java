@@ -7,7 +7,8 @@ import lombok.Data;
 @Data
 public class Challenge {
 	
-	 private String name;
+		private Long id; 	
+		private String name;
 	    private List<Phase> phases;
 	    private Integer maxDailyLossPct;
 	    private Integer maxOverallLossPct;

@@ -59,7 +59,7 @@ public class FirmService {
 	 @Transactional(readOnly = true)
 	 public FirmResponse getById(Long id) {
 	     log.info("Fetching firm by ID: {}", id);
-	     FirmCard entity = firmRepository.findByIdWithDetails(id)
+	     FirmCard entity = firmRepository.findById(id)
 	             .orElseThrow(() -> {
 	                 log.warn("Firm with ID {} not found.", id);
 	                 return new ResourceNotFoundException("Firm not found with id: " + id);
@@ -127,7 +127,6 @@ public class FirmService {
 	     firmMapper.updateSimpleFields(existingEntity, firm);
 	
 	     firmMapper.updatePlatformCollection(existingEntity, firm);
-	     firmMapper.updateChallengeRelationship(existingEntity, firm);
 	
 	     FirmCard savedEntity = firmRepository.save(existingEntity);
 	     log.info("Successfully updated firm with ID: {}", id);

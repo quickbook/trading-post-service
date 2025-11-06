@@ -2,11 +2,13 @@ package com.tps.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.tps.dto.LoginRequest;
 import com.tps.dto.RegisterRequest;
 import com.tps.dto.RegisterResponse;
 import com.tps.dto.UserResponse;
+import com.tps.dto.UserUpdateRequest;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.InvalidCredentialsException;
 import com.tps.exceptions.ResourceNotFoundException;
@@ -18,6 +20,7 @@ import com.tps.repository.CountryRepository;
 import com.tps.repository.RoleRepository;
 import com.tps.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -93,5 +96,57 @@ public class UserService {
 				.stateName(savedUser.getStateName())
 				.roleName(savedUser.getRole().getName()).build();
 	}
+	
+	@Transactional
+    public UserResponse updateUser(String userName, @Valid UserUpdateRequest dto) {
+        
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + userName));
+
+        if (StringUtils.hasText(dto.getFirstName())) {
+            user.setFirstName(dto.getFirstName().toUpperCase());
+        }
+        if (StringUtils.hasText(dto.getLastName())) {
+            user.setLastName(dto.getLastName().toUpperCase());
+        }
+        if (dto.getMiddleName() != null) {
+            user.setMiddleName(dto.getMiddleName().isEmpty() ? null : dto.getMiddleName().toUpperCase());
+        }
+        if (StringUtils.hasText(dto.getContactNumber())) {
+            user.setContactNumber(dto.getContactNumber());
+        }
+        if (StringUtils.hasText(dto.getAddress())) {
+            user.setAddress(dto.getAddress());
+        }
+        if (StringUtils.hasText(dto.getCity())) {
+            user.setCity(dto.getCity());
+        }
+        if (StringUtils.hasText(dto.getZipCode())) {
+            user.setZipCode(dto.getZipCode());
+        }
+        if (StringUtils.hasText(dto.getStateName())) {
+            user.setStateName(dto.getStateName());
+        }
+
+        if (StringUtils.hasText(dto.getPassword())) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        if (StringUtils.hasText(dto.getCountryCode()) && !dto.getCountryCode().equals(user.getCountry().getCode())) {
+            Country newCountry = countryRepository.findByCode(dto.getCountryCode())
+                    .orElseThrow(() -> new ResourceNotFoundException("Country not found for code: " + dto.getCountryCode()));
+            user.setCountry(newCountry);
+        }
+
+        if (StringUtils.hasText(dto.getGmail()) && !dto.getGmail().equalsIgnoreCase(user.getGmail())) {
+            if (userRepository.existsByGmail(dto.getGmail())) {
+                throw new DuplicateResourceException("Error: Email is already in use!");
+            }
+            user.setGmail(dto.getGmail());
+        }
+        
+       User updatedUser = userRepository.save(user);
+        return userMapper.mapToUserResponse(updatedUser);
+    }
 
 }

@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ApiResponse<T> {
- private boolean success;   // true or false
- private String message;    // optional description ("Fetched successfully", "Error", etc.)
- private T data;            // your actual payload (generic)
+ private boolean success;   
+ private String message;    
+ private T data;            
  private ErrorDetails errorDetails;
- private HttpStatus status;        // optional: HTTP status for easy debugging
- private String path;              // optional: endpoint path
+ private HttpStatus status;        
+ private String path;             
  private long timestamp;  
  }

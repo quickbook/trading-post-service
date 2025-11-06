@@ -5,7 +5,9 @@ package com.tps.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +17,7 @@ import com.tps.dto.LoginRequest;
 import com.tps.dto.RegisterRequest;
 import com.tps.dto.RegisterResponse;
 import com.tps.dto.UserResponse;
+import com.tps.dto.UserUpdateRequest;
 import com.tps.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -65,4 +68,23 @@ public class UserController {
 	    return ResponseEntity.status(HttpStatus.CREATED).body(response);	
 	  }
 	
+	@PutMapping("/{userName}")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @PathVariable String userName,
+            @Valid @RequestBody UserUpdateRequest updateRequest,
+            HttpServletRequest request) {
+        
+        UserResponse updatedUser = userService.updateUser(userName, updateRequest);
+
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
+                .success(true)
+                .message("User updated successfully")
+                .data(updatedUser)
+                .status(HttpStatus.OK)
+                .path(request.getRequestURI())
+                .timestamp(System.currentTimeMillis())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 }

@@ -21,7 +21,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,7 +28,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name="firm_card")
 @Data
-@EqualsAndHashCode(exclude = {"platforms", "challenge", "assets"})
+@EqualsAndHashCode(exclude = {"platforms", "challenges", "assets"})
 @EntityListeners(AuditingEntityListener.class) 
 public class FirmCard {
 	
@@ -80,16 +79,15 @@ public class FirmCard {
 	@Column(name = "updated_by")
 	private Long updatedBy;
 	
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "challenge_id", referencedColumnName = "id")
-	private Challenge challenge;
+	@OneToMany(mappedBy = "firmCard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Challenge> challenges = new HashSet<>();
 	
 	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(name = "firm_assets", joinColumns = @JoinColumn(name = "firm_card_id"))
 	@Column(name = "asset")
-	private Set<String> assets = new HashSet<>(); // Use Set and initialize
+	private Set<String> assets = new HashSet<>();
 
-	/** Change List<Platform> to Set<Platform> */
+	
 	@OneToMany(mappedBy = "firmCard", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Platform> platforms = new HashSet<>();	
 }

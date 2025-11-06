@@ -16,7 +16,7 @@ public interface FirmRepository extends JpaRepository<FirmCard, Long>, JpaSpecif
 	@Query("SELECT fc FROM FirmCard fc " +
 	           "LEFT JOIN FETCH fc.assets " +
 	           "LEFT JOIN FETCH fc.platforms " +
-	           "LEFT JOIN FETCH fc.challenge c " +
+	           "LEFT JOIN FETCH fc.challenges c " +
 	           "LEFT JOIN FETCH c.phases " +
 	           "WHERE fc.id = :id")
 	    Optional<FirmCard> findByIdWithDetails(Long id);
