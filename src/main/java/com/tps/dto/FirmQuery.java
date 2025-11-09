@@ -11,8 +11,8 @@ public class FirmQuery {
     private Long phaseTypeId;
 
     @Min(0)
-    private BigDecimal minAccount; // e.g., 5000
+    private BigDecimal minAccount; // Now filters FirmCard.maxAccountSizeUsd
 
-    private String country;
-    private Boolean updated; // maps to your bit(1) column
+    private String country; // Now filters FirmCard.hqCountry
+    private Boolean updated; 
 }

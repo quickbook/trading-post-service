@@ -9,7 +9,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class FirmFilterOptionsDto {
     private List<FirmCategoryDto> firmCategories;
-    private List<PhaseTypeDto> phaseTypes;
-    private List<DropdownOptionDto> sortOptions;   // optional, later
-    private List<DropdownOptionDto> minAcctSize;    // optional, later
+    private List<DropdownOptionDto> challengePhases; // Renamed from phaseTypes
+    private List<DropdownOptionDto> sortOptions;   
+    private List<DropdownOptionDto> minAcctSize;    
 }

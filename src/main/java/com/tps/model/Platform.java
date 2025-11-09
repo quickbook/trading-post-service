@@ -1,5 +1,6 @@
 package com.tps.model;
 
+import jakarta.persistence.Column; // NEW IMPORT
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,21 +17,22 @@ import lombok.ToString;
 @Data
 @Entity
 @Table(name = "firm_platforms", indexes = {
-    @Index(name = "idx_platform_firmcard_id", columnList = "firm_card_id")
+    @Index(name = "idx_platform_firm_id", columnList = "firm_id"),
+    @Index(name = "idx_platform_domain_id", columnList = "platform_id")
 })
 public class Platform {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED") 
     private Long id;
     
-    private String alt;
-
-    
-    private String src;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "platform_id", nullable = false)
+    private TradingPlatform domainPlatform;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "firm_card_id")
+    @JoinColumn(name = "firm_id", columnDefinition = "BIGINT UNSIGNED") 
     @ToString.Exclude 
     @EqualsAndHashCode.Exclude 
     private FirmCard firmCard;

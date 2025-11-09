@@ -27,7 +27,7 @@ import com.tps.dto.FirmResponse; // Import FirmResponse
 import com.tps.service.CommonDataService;
 import com.tps.service.FirmCategoryService;
 import com.tps.service.FirmService;
-import com.tps.service.PhaseTypeService;
+//import com.tps.service.PhaseTypeService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -40,43 +40,43 @@ import lombok.RequiredArgsConstructor;
 public class FirmsController {
 
     private final FirmCategoryService firmCategoryService;
-    private final PhaseTypeService phaseTypeService;
+    //private final DomainService domainService;
     private final CommonDataService commonDataService;
     private final FirmService firmService;
 
-    // ---------- Meta / filter options ----------  // Waiting for Other Tables
-    @GetMapping("/filter-options")
-    public ResponseEntity<ApiResponse<FirmFilterOptionsDto>> getFilterOptions(HttpServletRequest request) {
-        FirmFilterOptionsDto options = new FirmFilterOptionsDto(
-                firmCategoryService.getAllActive(),
-                phaseTypeService.getAllActive(),
-                commonDataService.getSortOptions(),
-                commonDataService.getMinAccountSizeOptions()
-        );
-
-        return ResponseEntity.ok(
-                ApiResponse.<FirmFilterOptionsDto>builder()
-                        .success(true)
-                        .message("Filter options fetched successfully")
-                        .data(options)
-                        .status(HttpStatus.OK)
-                        .path(request.getRequestURI())
-                        .timestamp(System.currentTimeMillis())
-                        .build()
-        );
-    }
+//    // ---------- Meta / filter options ----------  // Waiting for Other Tables
+//    @GetMapping("/filter-options")
+//    public ResponseEntity<ApiResponse<FirmFilterOptionsDto>> getFilterOptions(HttpServletRequest request) {
+//        FirmFilterOptionsDto options = new FirmFilterOptionsDto(
+//                firmCategoryService.getAllActive(),
+//                phaseTypeService.getAllActive(),
+//                commonDataService.getSortOptions(),
+//                commonDataService.getMinAccountSizeOptions()
+//        );
+//
+//        return ResponseEntity.ok(
+//                ApiResponse.<FirmFilterOptionsDto>builder()
+//                        .success(true)
+//                        .message("Filter options fetched successfully")
+//                        .data(options)
+//                        .status(HttpStatus.OK)
+//                        .path(request.getRequestURI())
+//                        .timestamp(System.currentTimeMillis())
+//                        .build()
+//        );
+//    }
 
     // ---------- List with pagination + optional filters ----------
     @GetMapping                     //Pagination is out of my knowledge. Need expert Help
-    public ResponseEntity<ApiResponse<Page<FirmResponse>>> listFirms( // <-- CHANGED
+    public ResponseEntity<ApiResponse<Page<FirmResponse>>> listFirms(
             @PageableDefault(size = 20) Pageable pageable,
             @Valid FirmQuery query, // populated from request params
             HttpServletRequest request
     ) {
-        Page<FirmResponse> page = firmService.find(query, pageable); // <-- CHANGED
+        Page<FirmResponse> page = firmService.find(query, pageable); 
 
         return ResponseEntity.ok(
-                ApiResponse.<Page<FirmResponse>>builder() // <-- CHANGED
+                ApiResponse.<Page<FirmResponse>>builder() 
                         .success(true)
                         .message("Firms fetched successfully")
                         .data(page)
@@ -89,10 +89,10 @@ public class FirmsController {
 
     // ---------- Get by id ----------
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<FirmResponse>> getFirm(@PathVariable Long id, HttpServletRequest request) { // <-- CHANGED
-        FirmResponse firm = firmService.getById(id); // <-- CHANGED
+    public ResponseEntity<ApiResponse<FirmResponse>> getFirm(@PathVariable Long id, HttpServletRequest request) { 
+        FirmResponse firm = firmService.getById(id);
         return ResponseEntity.ok(
-                ApiResponse.<FirmResponse>builder() // <-- CHANGED
+                ApiResponse.<FirmResponse>builder() 
                         .success(true)
                         .message("Firm fetched successfully")
                         .data(firm)
@@ -105,11 +105,11 @@ public class FirmsController {
 
     // ---------- Create ----------
     @PostMapping
-    public ResponseEntity<ApiResponse<FirmResponse>> create(@Valid @RequestBody Firm firm, HttpServletRequest request) { // <-- CHANGED
-        FirmResponse created = firmService.createFirm(firm); // <-- CHANGED
+    public ResponseEntity<ApiResponse<FirmResponse>> create(@Valid @RequestBody Firm firm, HttpServletRequest request) { 
+        FirmResponse created = firmService.createFirm(firm); 
 
         return ResponseEntity.created(URI.create("/api/v1/firms/" + created.getId()))
-                .body(ApiResponse.<FirmResponse>builder() // <-- CHANGED
+                .body(ApiResponse.<FirmResponse>builder() 
                         .success(true)
                         .message("Firm created successfully")
                         .data(created)
@@ -121,14 +121,14 @@ public class FirmsController {
 
     // ---------- Update (full) ----------
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<FirmResponse>> update( // <-- CHANGED
+    public ResponseEntity<ApiResponse<FirmResponse>> update( 
             @PathVariable Long id,
             @Valid @RequestBody Firm firmDto,
             HttpServletRequest request
     ) {
-        FirmResponse updated = firmService.updateFirm(id, firmDto); // <-- CHANGED
+        FirmResponse updated = firmService.updateFirm(id, firmDto); 
         return ResponseEntity.ok(
-                ApiResponse.<FirmResponse>builder() // <-- CHANGED
+                ApiResponse.<FirmResponse>builder() 
                         .success(true)
                         .message("Firm updated successfully")
                         .data(updated)
@@ -140,15 +140,15 @@ public class FirmsController {
     }
 
     // ---------- Partial update (optional) ----------
-    @PatchMapping("/{id}")   // Still some small bugs
-    public ResponseEntity<ApiResponse<FirmResponse>> patch( // <-- CHANGED
+    @PatchMapping("/{id}")   
+    public ResponseEntity<ApiResponse<FirmResponse>> patch( 
             @PathVariable Long id,
             @Valid @RequestBody FirmPatchRequest partial,
             HttpServletRequest request
     ) {
-        FirmResponse updated = firmService.patchFirm(id, partial); // <-- CHANGED
+        FirmResponse updated = firmService.patchFirm(id, partial); 
         return ResponseEntity.ok(
-                ApiResponse.<FirmResponse>builder() // <-- CHANGED
+                ApiResponse.<FirmResponse>builder() 
                         .success(true)
                         .message("Firm partially updated successfully")
                         .data(updated)
@@ -168,10 +168,10 @@ public class FirmsController {
                 .success(true)
                 .message("Firm deleted successfully")
                 .data(null) // No data needed for delete confirmation
-                .status(HttpStatus.OK) // Use 200 OK
+                .status(HttpStatus.OK) 
                 .path(request.getRequestURI()) 
                 .timestamp(System.currentTimeMillis())
                 .build();
-        return ResponseEntity.ok(response); // Return 200 OK with the body
+        return ResponseEntity.ok(response); 
     }
 }

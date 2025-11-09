@@ -14,8 +14,10 @@ import lombok.Data;
 public class FirmCategory {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+    
+    @Column(name = "category_key", nullable = false, unique = true)
     private String key;     // e.g., "ALL", "TOP_RATED"
+    
     private String label;   // e.g., "All Firms", "Top Rated"
     private Integer sortOrder;
     private Boolean active = true;
