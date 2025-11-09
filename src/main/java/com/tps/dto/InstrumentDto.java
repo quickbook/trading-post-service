@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoleDto {
-	
-    private Long roleId;
-    private String roleName;
+public class InstrumentDto {
+    private String code;
+    private String name;
 }

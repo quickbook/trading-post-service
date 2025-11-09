@@ -25,7 +25,7 @@ public class FirmReviewMapper {
         
         if (entity.getFirm() != null) {
             dto.setFirmId(entity.getFirm().getId());
-            dto.setFirmTitle(entity.getFirm().getTitle());
+            dto.setFirmTitle(entity.getFirm().getName());
         }
         
         return dto;

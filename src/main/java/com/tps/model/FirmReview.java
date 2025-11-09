@@ -30,7 +30,7 @@ public class FirmReview {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "firm_id", nullable = false)
+    @JoinColumn(name = "firm_id", nullable = false, columnDefinition = "BIGINT UNSIGNED", referencedColumnName = "id")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private FirmCard firm; 

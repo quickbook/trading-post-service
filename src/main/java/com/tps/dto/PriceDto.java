@@ -1,5 +1,6 @@
 package com.tps.dto;
 
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,8 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoleDto {
-	
-    private Long roleId;
-    private String roleName;
+public class PriceDto {
+    private BigDecimal amount;
+    private String currency;
 }

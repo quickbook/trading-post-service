@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhaseTypeDto {
-    private Long id;
-    private String key;
-    private String label;
+public class CurrencyDto {
+    private String code;
+    private String name;
+    private String symbol;
 }

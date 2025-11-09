@@ -4,12 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import lombok.Data;
 
@@ -18,43 +13,30 @@ public class FirmResponse {
 	
 	 private Long id; 
 	 
-	 @NotBlank(message = "Title is required")
-	 @Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
-	  private String title;
-	  
-	 @Min(value = 0, message = "Profit split cannot be negative")
-	  private Integer profitSplit;
-	  
-	 @NotNull(message = "Account size is required")
-	 @Min(value = 0, message = "Account size must be a positive number")
-	  private BigDecimal account;
-	  
-	  private String code;
-	  private String logo;
-	  private boolean updated;
-	  private String rating;
-	  private Integer allRatings;
-	  private String country;
-	  private String flag;
-	  
-	  private Instant createdDate;
-	  private Instant updatedDate;
-	  
-	  private Long createdBy; 
-      private Long updatedBy;
+	 private String name;
+	 private String slug;
+	 private String website;
+	 private String logoUrl;
+	 private String hqCountry;
+	 private Short foundedYear;
+	 
+	 private Boolean isTrusted;
+	 private BigDecimal rating;
+	 private Integer allRatings;
+	 private String description;
 
 	  
-	  @NotNull(message = "Assets list cannot be null (can be empty)")
-	  private List<String> assets;
+	 private Instant createdAt;
+	 private Instant updatedAt;
 	  
-	  @Valid 
-	  @NotNull(message = "Platforms list cannot be null")
-	  @Size(min = 1, message = "At least one platform is required")
-	  private List<Platform> platforms;
-	  
-	 @NotNull(message = "Max allocation is required")
-	 @Min(value = 0, message = "Max allocation must be a positive number")
-	  private BigDecimal maxAllocation;
+	 private Long createdBy; 
+     private Long updatedBy;
+
+	 // Nested DTOs
+	 private TradingConditionsDto tradingConditions;
+	 private AboutDto about;
+	 
+	 // Nested Challenge Cards (List of available challenges/plans)
 	 @Valid
-     private List<Challenge> challenges;
+     private List<ChallengeCardDto> challenges;
 }
