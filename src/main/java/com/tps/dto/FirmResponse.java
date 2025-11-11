@@ -20,9 +20,7 @@ public class FirmResponse {
 	 private String country;
 	 private String countryCode;
 	 private String description;	 
-	 private Boolean isTrusted;
-	 private String offerCode;
-	 private String buyUrl;
+	 private Boolean isTrusted;	
 	 private TradingConditionsDto tradingConditions;
 	 private AboutDto about;
      private List<ChallengeCardDto> challenges;

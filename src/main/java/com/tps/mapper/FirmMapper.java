@@ -89,10 +89,9 @@ public class FirmMapper {
         dto.setRating(entity.getRating());
         dto.setAllRatings(entity.getAllRatings());
         dto.setDescription(entity.getDescription());
-        dto.setFirmPageURL("/firms/" + entity.getSlug());
-        dto.setFirmType(entity.getFirmType());
-        dto.setOfferCode(entity.getDiscountCode());
-        dto.setBuyUrl(entity.getBuyUrl());       
+        dto.setFirmPageURL(entity.getBuyUrl());
+        dto.setFirmType(entity.getFirmType());        
+      
  
 
 
