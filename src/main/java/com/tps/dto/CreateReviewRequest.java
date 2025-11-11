@@ -8,7 +8,10 @@ public class CreateReviewRequest {
 
     @NotBlank(message = "Reviewer name is required")
     private String reviewerName;
-
+    
+    @NotBlank(message = "Firm Id is required")
+    private Long firmId;
+ 
     private String propName;
     
     @NotBlank(message = "Rating is required")

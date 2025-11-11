@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChallengeCardDto {
+	
+	private Long id;
     private String tier;
     private String phase;
     private BigDecimal profitTargetPct;

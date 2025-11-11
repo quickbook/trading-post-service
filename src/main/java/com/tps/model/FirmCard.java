@@ -53,7 +53,7 @@ public class FirmCard {
 	private String logo; 
     
     @Column(name="hq_country", length = 100)
-    private String hqCountry;
+    private String countryCode;
     
     @Column(name="founded_year")
     private Short foundedYear;
@@ -62,7 +62,7 @@ public class FirmCard {
     private Boolean isTrusted = false;
 
     @Column(name="rating", precision = 3, scale = 2)
-	private BigDecimal rating;
+	private String rating;
 	
 	@Column(name="all_ratings")
 	private Integer allRatings;
@@ -109,6 +109,10 @@ public class FirmCard {
     
     @Column(name="firm_type", length = 200)
     private String firmType;
+    
+	@Column(name="buy_url", length = 255)
+	private String buyUrl; 
+    
 
 	@Column(nullable=false)
 	private boolean updated; 
@@ -126,6 +130,7 @@ public class FirmCard {
 	private Long createdBy;
 	@Column(name = "updated_by")
 	private Long updatedBy;
+	
 	
      
 	

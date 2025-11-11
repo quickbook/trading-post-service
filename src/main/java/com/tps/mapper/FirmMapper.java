@@ -13,7 +13,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // Import all DTOs
-import com.tps.dto.Firm;
+ 
+import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmResponse;
 import com.tps.dto.TradingConditionsDto;
 import com.tps.dto.AboutDto;
@@ -52,6 +53,7 @@ public class FirmMapper {
         PriceDto price = new PriceDto(view.getPriceAmount(), view.getPriceCurrency());
         
         return new ChallengeCardDto(
+            view.getPlanId(),
             view.getTierName(),
             view.getPhaseLabel(),
             view.getProfitTargetPct(),
@@ -80,18 +82,18 @@ public class FirmMapper {
         dto.setName(entity.getName());
         dto.setSlug(entity.getSlug());
         dto.setWebsite(entity.getWebsite());
-        dto.setLogoUrl(entity.getLogo());
-        dto.setHqCountry(entity.getHqCountry());
-        dto.setFoundedYear(entity.getFoundedYear());
+        dto.setLogo(entity.getLogo());
+        dto.setCountryCode(entity.getCountryCode());  
+        dto.setCountry(entity.getCountryCode());
         dto.setIsTrusted(entity.getIsTrusted());
         dto.setRating(entity.getRating());
         dto.setAllRatings(entity.getAllRatings());
         dto.setDescription(entity.getDescription());
-        
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getUpdatedAt());
-        dto.setCreatedBy(entity.getCreatedBy());
-        dto.setUpdatedBy(entity.getUpdatedBy());
+        dto.setFirmPageURL("/firms/" + entity.getSlug());
+        dto.setFirmType(entity.getFirmType());
+        dto.setOfferCode(entity.getDiscountCode());
+        dto.setBuyUrl(entity.getBuyUrl());       
+ 
 
 
         // 2. Map TradingConditions (Reconstruct nested DTO)
@@ -150,7 +152,7 @@ public class FirmMapper {
     
     // --- DTO -> Entity (For POST/PUT operations) ---
 
-    public FirmCard toEntity(Firm dto) {
+    public FirmCard toEntity(FirmPatchRequest dto) {
         if (dto == null) return null;
 
         FirmCard entity = new FirmCard();
@@ -159,9 +161,8 @@ public class FirmMapper {
         entity.setName(dto.getName());
         entity.setSlug(dto.getSlug());
         entity.setWebsite(dto.getWebsite());
-        entity.setLogo(dto.getLogoUrl());
-        entity.setHqCountry(dto.getHqCountry());
-        entity.setFoundedYear(dto.getFoundedYear());
+        entity.setLogo(dto.getLogo());
+        entity.setCountryCode(dto.getCountryCode());      
         entity.setIsTrusted(dto.getIsTrusted());
         entity.setRating(dto.getRating());
         entity.setAllRatings(dto.getAllRatings());
@@ -208,6 +209,7 @@ public class FirmMapper {
             entity.setHeadquarters(about.getHeadquarters());
             entity.setJurisdiction(about.getJurisdiction());
             entity.setFirmStatus(mapFirmStatus(about.getFirmStatus()));
+            entity.setFoundedYear(about.getFoundedYear());
         }
 
         return entity;
@@ -262,14 +264,14 @@ public class FirmMapper {
 
     // --- Update Logic Helpers ---
 
-     public void updateSimpleFields(FirmCard existingEntity, Firm firmDto) {
+     public void updateSimpleFields(FirmCard existingEntity, FirmPatchRequest firmDto) {
          // 1. Map Top-Level Fields
         existingEntity.setName(firmDto.getName());
         existingEntity.setSlug(firmDto.getSlug());
         existingEntity.setWebsite(firmDto.getWebsite());
-        existingEntity.setLogo(firmDto.getLogoUrl());
-        existingEntity.setHqCountry(firmDto.getHqCountry());
-        existingEntity.setFoundedYear(firmDto.getFoundedYear());
+        existingEntity.setLogo(firmDto.getLogo());
+        existingEntity.setCountryCode(firmDto.getCountryCode());
+
         existingEntity.setIsTrusted(firmDto.getIsTrusted());
         existingEntity.setRating(firmDto.getRating());
         existingEntity.setAllRatings(firmDto.getAllRatings());
@@ -309,11 +311,12 @@ public class FirmMapper {
             existingEntity.setHeadquarters(about.getHeadquarters());
             existingEntity.setJurisdiction(about.getJurisdiction());
             existingEntity.setFirmStatus(mapFirmStatus(about.getFirmStatus()));
+            existingEntity.setFoundedYear(about.getFoundedYear());
         }
      }
      
      // Method to update the Platform Collection (OneToMany relationship)
-     public void updatePlatformCollection(FirmCard existingEntity, Firm firmDto) {
+     public void updatePlatformCollection(FirmCard existingEntity, FirmPatchRequest firmDto) {
          
          if (existingEntity.getPlatforms() != null) {
              existingEntity.getPlatforms().clear();

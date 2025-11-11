@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com.tps.dto.Firm;
+ 
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
 import com.tps.dto.FirmResponse;
@@ -80,12 +80,10 @@ public class FirmService {
 	
 	
 	 @Transactional
-	 public FirmResponse createFirm(Firm firm) {
+	 public FirmResponse createFirm(FirmPatchRequest firm) {
 	     log.info("Attempting to create a new firm with name: {}", firm.getName());
 	     
-	     if(firm.getUserId() == null) {
-	         throw new IllegalArgumentException("User ID must be provided to create a firm");
-	     }
+	     
 	     if (firmRepository.existsByName(firm.getName())) {
 	    	 throw new DuplicateResourceException("A firm with the name '" + firm.getName() + "' already exists.");
 	     }
@@ -93,10 +91,8 @@ public class FirmService {
 	     
          entityToSave.setFirmStatus(FirmStatus.ACTIVE);
          
-	     if(firm.getUserId() == null) {
-	         throw new IllegalArgumentException("User ID must be provided to create a firm");
-	     }
-	     entityToSave.setCreatedBy(firm.getUserId());
+	   
+	     
 	     
 	     firmMapper.linkChildEntities(entityToSave);
 	     
@@ -108,7 +104,7 @@ public class FirmService {
 	
 	
 	 @Transactional
-	 public FirmResponse updateFirm(Long id, Firm firm) {
+	 public FirmResponse updateFirm(Long id, FirmPatchRequest firm) {
 	     log.info("Attempting to update firm with ID: {}", id);
 	
 	     FirmCard existingEntity = firmRepository.findById(id)
@@ -122,10 +118,8 @@ public class FirmService {
 	             throw new DuplicateResourceException("A firm with the name '" + firm.getName() + "' already exists.");
 	         });
 	     
-	     if(firm.getUserId() == null) {
-	         throw new IllegalArgumentException("User ID must be provided to update a firm");
-	     }
-	     existingEntity.setUpdatedBy(firm.getUserId());
+	      
+	     //existingEntity.setUpdatedBy(firm.getUserId());
 	     firmMapper.updateSimpleFields(existingEntity, firm);
 	
 	     firmMapper.updatePlatformCollection(existingEntity, firm);
@@ -205,7 +199,7 @@ public class FirmService {
 	     if (partialFirmDto.getAllRatings() != null) {
 	         existingEntity.setAllRatings(partialFirmDto.getAllRatings());
 	     }
-	     if (partialFirmDto.getMaxAccountSizeUsd() != null) {
+	    /* if (partialFirmDto.getMaxAccountSizeUsd() != null) {
 	         existingEntity.setMaxAccountSizeUsd(partialFirmDto.getMaxAccountSizeUsd());
 	     }
 	     if (partialFirmDto.getProfitSplitPct() != null) {
@@ -223,8 +217,8 @@ public class FirmService {
 	     
 	     if(partialFirmDto.getUserId() == null) {
 	         throw new IllegalArgumentException("User ID must be provided to patch a firm");
-	     }
-	     existingEntity.setUpdatedBy(partialFirmDto.getUserId());
+	     }*/
+	   //  existingEntity.setUpdatedBy(partialFirmDto.getUserId());
 
 	     log.warn("PATCH operation only updated simple top-level fields for Firm ID: {}. Collections/Nested objects were ignored.", id);
 

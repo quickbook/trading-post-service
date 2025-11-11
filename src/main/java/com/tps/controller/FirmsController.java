@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tps.dto.ApiResponse;
-import com.tps.dto.Firm;
+import com.tps.dto.ApiResponse; 
 import com.tps.dto.FirmFilterOptionsDto;
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
@@ -67,7 +66,8 @@ public class FirmsController {
 //    }
 
     // ---------- List with pagination + optional filters ----------
-    @GetMapping                     //Pagination is out of my knowledge. Need expert Help
+    
+    @GetMapping            
     public ResponseEntity<ApiResponse<Page<FirmResponse>>> listFirms(
             @PageableDefault(size = 20) Pageable pageable,
             @Valid FirmQuery query, // populated from request params
@@ -87,7 +87,7 @@ public class FirmsController {
         );
     }
 
-    // ---------- Get by id ----------
+    // ---------- Get by id with full details ----------
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<FirmResponse>> getFirm(@PathVariable Long id, HttpServletRequest request) { 
         FirmResponse firm = firmService.getById(id);
@@ -105,7 +105,7 @@ public class FirmsController {
 
     // ---------- Create ----------
     @PostMapping
-    public ResponseEntity<ApiResponse<FirmResponse>> create(@Valid @RequestBody Firm firm, HttpServletRequest request) { 
+    public ResponseEntity<ApiResponse<FirmResponse>> create(@Valid @RequestBody FirmPatchRequest firm, HttpServletRequest request) { 
         FirmResponse created = firmService.createFirm(firm); 
 
         return ResponseEntity.created(URI.create("/api/v1/firms/" + created.getId()))
@@ -123,7 +123,7 @@ public class FirmsController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<FirmResponse>> update( 
             @PathVariable Long id,
-            @Valid @RequestBody Firm firmDto,
+            @Valid @RequestBody FirmPatchRequest firmDto,
             HttpServletRequest request
     ) {
         FirmResponse updated = firmService.updateFirm(id, firmDto); 
