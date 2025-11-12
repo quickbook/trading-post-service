@@ -5,29 +5,25 @@ import java.util.HashSet;
 import java.util.List; 
 import java.util.Set; 
 import java.util.stream.Collectors;
-import java.time.LocalDate;
-import java.math.BigDecimal;
-
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // Import all DTOs
- 
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmResponse;
 import com.tps.dto.TradingConditionsDto;
 import com.tps.dto.AboutDto;
 import com.tps.dto.ChallengeCardDto;
 import com.tps.dto.PriceDto;
+import com.tps.dto.FirmReviewDto; // NEW IMPORT
 
 // Import all Models and Repositories
 import com.tps.model.FirmCard;
 import com.tps.model.FirmStatus;
 import com.tps.model.WithdrawalSpeed;
-import com.tps.model.Platform;
 import com.tps.model.TradingPlatform; 
-import com.tps.model.ChallengeCardView; // NEW: View Entity
+import com.tps.model.ChallengeCardView; 
 import com.tps.repository.TradingPlatformRepository; 
 import com.tps.exceptions.ResourceNotFoundException; 
 
@@ -43,13 +39,10 @@ public class FirmMapper {
 
     // --- MAPPING VIEW ENTITY TO DTO ---
     
-    /**
-     * Converts a ChallengeCardView database entity (from the SQL view) to the client DTO.
-     */
+    
     public ChallengeCardDto toDto(ChallengeCardView view) {
         if (view == null) return null;
         
-        // Map data into the nested DTO structure (ChallengeCardDto and PriceDto)
         PriceDto price = new PriceDto(view.getPriceAmount(), view.getPriceCurrency());
         
         return new ChallengeCardDto(
@@ -66,13 +59,9 @@ public class FirmMapper {
     }
     
 
-    // --- Entity -> DTO (Detailed GET: Used by getById, returns firm details + challenge cards) ---
+    // --- Entity -> DTO (Detailed GET: Accepts view data and reviews) ---
 
-    /**
-     * Converts a FirmCard entity to FirmResponse DTO, incorporating optional challenge cards.
-     * This signature is used by getById, createFirm, updateFirm, and patchFirm.
-     */
-    public FirmResponse toDto(FirmCard entity, List<ChallengeCardView> challengeCards) {
+    public FirmResponse toDto(FirmCard entity, List<ChallengeCardView> challengeCards, List<FirmReviewDto> reviews) {
         if (entity == null) return null;
 
         FirmResponse dto = new FirmResponse(); 
@@ -92,7 +81,6 @@ public class FirmMapper {
         dto.setFirmPageURL(entity.getBuyUrl());
         dto.setFirmType(entity.getFirmType());        
       
- 
 
 
         // 2. Map TradingConditions (Reconstruct nested DTO)
@@ -131,22 +119,27 @@ public class FirmMapper {
         aboutDto.setHeadquarters(entity.getHeadquarters());
         aboutDto.setJurisdiction(entity.getJurisdiction());
         aboutDto.setFirmStatus(mapFirmStatusToString(entity.getFirmStatus()));
+        aboutDto.setFoundedYear(entity.getFoundedYear());
+        aboutDto.setDescription(entity.getAboutDescription());
         dto.setAbout(aboutDto);
         
         // 4. Map Challenges
         dto.setChallenges(challengeCards.stream()
             .map(this::toDto) // Use the ChallengeCardView to DTO mapper
             .collect(Collectors.toList()));
+
+        // 5. Map Reviews (NEW)
+        dto.setReviews(reviews);
         
         return dto;
     }
     
     // --- Entity -> DTO (Simple GET: Used by list/find endpoint) ---
     /**
-     * Default signature used by list endpoints (find/getAll) where challenge card data is not needed.
+     * Default signature used by list endpoints (find/getAll) where challenge card data and reviews are not needed.
      */
     public FirmResponse toDto(FirmCard entity) {
-        return toDto(entity, new ArrayList<>()); // Calls the detailed method with an empty list
+        return toDto(entity, new ArrayList<>(), new ArrayList<>()); // Calls the detailed method with empty lists
     }
     
     // --- DTO -> Entity (For POST/PUT operations) ---
@@ -167,6 +160,9 @@ public class FirmMapper {
         entity.setAllRatings(dto.getAllRatings());
         entity.setDescription(dto.getDescription());
         entity.setUpdated(true); 
+        entity.setFirmType(dto.getFirmType()); 
+        entity.setBuyUrl(dto.getFirmPageURL()); 
+
 
         // 2. Map TradingConditions (flattened)
         TradingConditionsDto conditions = dto.getTradingConditions();
@@ -208,7 +204,10 @@ public class FirmMapper {
             entity.setHeadquarters(about.getHeadquarters());
             entity.setJurisdiction(about.getJurisdiction());
             entity.setFirmStatus(mapFirmStatus(about.getFirmStatus()));
+            
             entity.setFoundedYear(about.getFoundedYear());
+            entity.setAboutDescription(about.getDescription());
+
         }
 
         return entity;

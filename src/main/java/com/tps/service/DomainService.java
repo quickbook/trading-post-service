@@ -90,6 +90,7 @@ public class DomainService {
                .collect(Collectors.toList());
    }
     
+    
     public List<DrawdownTypeDto> getAllDrawdownTypes() {
         return drawdownTypeRepository.findAll().stream()
                 .map(d -> new DrawdownTypeDto(d.getId(), d.getCode(), d.getLabel(), d.getDescription()))

@@ -35,7 +35,7 @@ public class DataCleanupService {
     @Scheduled(cron = "0 0 3 1,16 * ?")
     public void cleanOldExceptionLogs() {
         Instant cutoff = Instant.now().minus(15, ChronoUnit.DAYS);
-        int deleted = exceptionLogRepository.deleteOlderThan(cutoff);
+        exceptionLogRepository.deleteOlderThan(cutoff);
         
         
     }

@@ -21,7 +21,8 @@ public class FirmReviewMapper {
         dto.setRating(entity.getRating());
         dto.setDescription(entity.getDescription());
         dto.setCreatedAt(entity.getCreatedAt());
-        
+        dto.setIsDeleted(entity.getIsDeleted());
+        dto.setUpdatedAt(entity.getUpdatedAt());
         if (entity.getFirm() != null) {
             dto.setFirmId(entity.getFirm().getId());
             dto.setPropName(entity.getFirm().getName());

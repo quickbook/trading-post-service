@@ -11,8 +11,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
 	@Bean
@@ -21,10 +24,9 @@ public class SecurityConfig {
 	}
 
 	private final JwtAuthFilter jwtAuthFilter;
+	private final CustomAccessDeniedHandler accessDeniedHandler;
 
-	public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
-		this.jwtAuthFilter = jwtAuthFilter;
-	}
+
 
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -53,14 +55,21 @@ public class SecurityConfig {
 						// Allow token issue and refresh endpoints (public)
 						.requestMatchers("/tradingpost/auth/**").permitAll()
 
-						// Allow public APIs
-						.requestMatchers("/tradingpost/api/v1/firms/**").authenticated()
+						// 1. Read-only GET access for ALL authenticated users (list, get by ID)
+						.requestMatchers(HttpMethod.GET, "/tradingpost/api/v1/firms/**").authenticated()
 
+						// 2. Write access (POST, PUT, PATCH, DELETE) restricted to ADMIN role
+						.requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/firms").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.PATCH, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
+						.requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
+						
 						// Require authentication for user-related endpoints
 						.requestMatchers("/tradingpost/api/v1/users/**").authenticated()
 						
 						// All other endpoints must also be authenticated
 						.anyRequest().authenticated())
+				.exceptionHandling(eh -> eh.accessDeniedHandler(accessDeniedHandler))
 
 				// Add custom JWT validation filter
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

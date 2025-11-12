@@ -13,18 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
- 
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
 import com.tps.dto.FirmResponse;
+import com.tps.dto.FirmReviewDto;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmMapper;
+import com.tps.model.ChallengeCardView; // NEW: View Entity
 import com.tps.model.FirmCard;
 import com.tps.model.FirmStatus;
-import com.tps.model.ChallengeCardView; // NEW: View Entity
-import com.tps.repository.FirmRepository;
 import com.tps.repository.ChallengeCardViewRepository; // NEW: View Repository
+import com.tps.repository.FirmRepository;
 
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -40,7 +40,8 @@ public class FirmService {
 
 	private final FirmRepository firmRepository;
 	private final FirmMapper firmMapper;
-    private final ChallengeCardViewRepository challengeCardViewRepository; 
+    private final ChallengeCardViewRepository challengeCardViewRepository;
+    private final FirmReviewService firmReviewService;
 	
 	 @Transactional(readOnly = true)
 	 public List<FirmResponse> getAll() {
@@ -73,9 +74,9 @@ public class FirmService {
                  
         // Fetch related challenge cards from the view
         List<ChallengeCardView> challengeCards = challengeCardViewRepository.findByFirmId(id);
-        
+        List<FirmReviewDto> reviews = firmReviewService.getReviewsForFirm(id);
         // Use the detailed mapper method to construct the DTO with cards
-	    return firmMapper.toDto(entity, challengeCards);
+	    return firmMapper.toDto(entity, challengeCards, reviews);
 	 }
 	
 	
@@ -124,7 +125,7 @@ public class FirmService {
 	
 	     firmMapper.updatePlatformCollection(existingEntity, firm);
 	
-	     FirmCard savedEntity = firmRepository.save(existingEntity);
+	     firmRepository.save(existingEntity);
 	     log.info("Successfully updated firm with ID: {}", id);
 	     
 	     return getById(id);

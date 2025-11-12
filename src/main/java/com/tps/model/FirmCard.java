@@ -1,6 +1,5 @@
 package com.tps.model;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -130,7 +129,9 @@ public class FirmCard {
 	private Long createdBy;
 	@Column(name = "updated_by")
 	private Long updatedBy;
-	
+	@Column(name="about_description", columnDefinition = "TEXT")
+	private String aboutDescription;
+
 	
      
 	

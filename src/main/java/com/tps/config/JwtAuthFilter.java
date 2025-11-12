@@ -49,14 +49,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			try {
 				Jws<Claims> jws = tokenService.parse(token);
 				String ipInToken = jws.getBody().get("ip", String.class);
+				String roleName = jws.getBody().get("role", String.class);
+                if (roleName == null) {
+                    roleName = "USER"; // Default to USER if role is missing
+                }
 				String clientIp = clientIp(request);
 				if (clientIp != null && clientIp.startsWith("::ffff:"))
 					clientIp = clientIp.substring(7);
 				if (!clientIp.equals(ipInToken)) {
 					throw new JwtException("IP mismatch");
 				}
-				Authentication authentication = new AbstractAuthenticationToken(
-						List.of(new SimpleGrantedAuthority("ROLE_USER"))) {
+				// Use the extracted role to create the authority list
+                List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + roleName.toUpperCase()));
+				
+                Authentication authentication = new AbstractAuthenticationToken(authorities) {
 					@Override
 					public Object getCredentials() {
 						return token;

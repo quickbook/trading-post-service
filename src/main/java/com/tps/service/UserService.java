@@ -1,12 +1,17 @@
 package com.tps.service;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.tps.dto.LoginRequest;
+import com.tps.dto.LoginResponseDto;
 import com.tps.dto.RegisterRequest;
 import com.tps.dto.RegisterResponse;
+import com.tps.dto.TokenCacheEntry;
 import com.tps.dto.UserResponse;
 import com.tps.dto.UserUpdateRequest;
 import com.tps.exceptions.DuplicateResourceException;
@@ -31,13 +36,14 @@ public class UserService {
 	private final UserRepository userRepository;
 
 	private final RoleRepository roleRepository;
-	private final CountryRepository countryRepository;	
+	private final CountryRepository countryRepository;
+	private final TokenService tokenService;
 
 	private final UserMapper userMapper;
 
 	private final PasswordEncoder passwordEncoder;
 
-	public UserResponse checkLoginDetails(LoginRequest loginRequest) {
+	public LoginResponseDto checkLoginDetails(LoginRequest loginRequest, String clientIp) {
 
 		User user = userRepository.findByUserName(loginRequest.getUsername())
 				.orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
@@ -45,8 +51,19 @@ public class UserService {
 		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
 			throw new InvalidCredentialsException("Invalid username or password");
 		}
-
-		return userMapper.mapToUserResponse(user);
+		// 1. Get Role Name from the User Entity
+        String roleName = user.getRole() != null ? user.getRole().getName() : "USER";
+        
+        // 2. Issue Token with Role
+        TokenCacheEntry entry = tokenService.issueTokenWithRole(clientIp, roleName);
+        long expiresIn = Duration.between(Instant.now(), entry.accessExpiry()).toSeconds();
+        UserResponse userData = userMapper.mapToUserResponse(user);
+        return new LoginResponseDto(
+                userData, 
+                entry.accessToken(), 
+                entry.refreshToken(), 
+                expiresIn
+            );
 	}
 
 	public RegisterResponse userRegister(@Valid RegisterRequest registerRequest) {

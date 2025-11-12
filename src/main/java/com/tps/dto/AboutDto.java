@@ -16,6 +16,6 @@ public class AboutDto {
     private String headquarters;
     private String jurisdiction;
     private String description ;
-    private String firmStatus; // Enum as String (e.g., "Active")
-    private Short foundedYear; // Year as String (e.g., "2005")
+    private String firmStatus;
+    private Short foundedYear; 
 }

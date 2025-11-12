@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tps.dto.ApiResponse;
 import com.tps.dto.LoginRequest;
+import com.tps.dto.LoginResponseDto;
 import com.tps.dto.RegisterRequest;
 import com.tps.dto.RegisterResponse;
 import com.tps.dto.UserResponse;
@@ -34,11 +35,13 @@ public class UserController {
 	
 	
 	@PostMapping("/login")
-    public ResponseEntity<ApiResponse<UserResponse>> loginUser(@Valid @RequestBody LoginRequest loginRequest,HttpServletRequest request) {
-        
-		UserResponse loginData = userService.checkLoginDetails(loginRequest);
-
-        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
+    public ResponseEntity<ApiResponse<LoginResponseDto>> loginUser(@Valid @RequestBody LoginRequest loginRequest,HttpServletRequest request) {
+		
+		String clientIp = clientIp(request);
+		
+		LoginResponseDto loginData = userService.checkLoginDetails(loginRequest, clientIp);
+		
+        ApiResponse<LoginResponseDto> response = ApiResponse.<LoginResponseDto>builder()
                 .success(true)
                 .message("Login successful")
                 .data(loginData)
@@ -50,6 +53,13 @@ public class UserController {
        
         return ResponseEntity.ok(response);
     }
+	// Helper Method, to extract the IP addresses from user API Request
+	private String clientIp(HttpServletRequest req) {
+		String xff = req.getHeader("X-Forwarded-For");
+		if (xff != null && !xff.isBlank())
+			return xff.split(",")[0].trim();
+		return req.getRemoteAddr();
+	}
 	
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<RegisterResponse>> registerUser(@Valid @RequestBody RegisterRequest registerRequest,HttpServletRequest request) {
