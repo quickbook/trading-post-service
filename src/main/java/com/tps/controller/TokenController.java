@@ -48,8 +48,8 @@ public class TokenController {
 		}
 		TokenCacheEntry entry = tokens.issueOrReuseForIp(ip);
 		long expiresIn = Duration.between(Instant.now(), entry.accessExpiry()).toSeconds();
-		return ResponseEntity.ok(Map.of("token_type", "Bearer", "access_token", entry.accessToken(), "expires_in",
-				expiresIn, "refresh_token", entry.refreshToken()));
+		return ResponseEntity.ok(Map.of("tokenType", "Bearer", "accessToken", entry.accessToken(), "expiresIn",
+				expiresIn, "refreshToken", entry.refreshToken()));
 	}
 
 	public record RefreshRequest(@NotBlank String refreshToken) {
@@ -65,8 +65,8 @@ public class TokenController {
 		try {
 			TokenCacheEntry entry = tokens.refresh(ip, body.refreshToken());
 			long expiresIn = Duration.between(Instant.now(), entry.accessExpiry()).toSeconds();
-			return ResponseEntity.ok(Map.of("token_type", "Bearer", "access_token", entry.accessToken(), "expires_in",
-					expiresIn, "refresh_token", entry.refreshToken()));
+			return ResponseEntity.ok(Map.of("tokenType", "Bearer", "accessToken", entry.accessToken(), "expiresIn",
+					expiresIn, "refreshToken", entry.refreshToken()));
 		} catch (Exception e) {
 			return ResponseEntity.status(401)
 					.body(Map.of("error", "invalid_refresh", "error_description", e.getMessage()));
