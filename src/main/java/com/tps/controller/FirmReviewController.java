@@ -33,13 +33,13 @@ public class FirmReviewController {
     /**
      * Create a new review for a specific firm.
      */
-    @PostMapping("/firm/{firmId}")
+    @PostMapping("/firm/{firmId}/{userId}")
     public ResponseEntity<ApiResponse<FirmReviewDto>> createReview(
-            @PathVariable Long firmId,
+            @PathVariable Long firmId,@PathVariable Long userId,
             @Valid @RequestBody CreateReviewRequest dto,
             HttpServletRequest request) {
         
-        FirmReviewDto createdReview = reviewService.createReview(firmId, dto);
+        FirmReviewDto createdReview = reviewService.createReview(firmId, userId,dto);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(
             ApiResponse.<FirmReviewDto>builder()

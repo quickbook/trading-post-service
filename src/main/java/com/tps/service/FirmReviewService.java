@@ -12,8 +12,10 @@ import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmReviewMapper;
 import com.tps.model.FirmCard;
 import com.tps.model.FirmReview;
+import com.tps.model.User;
 import com.tps.repository.FirmRepository;
 import com.tps.repository.FirmReviewRepository;
+import com.tps.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,18 +26,24 @@ public class FirmReviewService {
 
     private final FirmReviewRepository reviewRepository;
     private final FirmRepository firmRepository;
+    private final UserRepository userRepository;
     private final FirmReviewMapper reviewMapper;
 
     /**
      * Create a new review for a firm.
      */
-    public FirmReviewDto createReview(Long firmId, CreateReviewRequest dto) {
+    public FirmReviewDto createReview(Long firmId, Long userId,CreateReviewRequest dto) {
         FirmCard firm = firmRepository.findById(firmId)
                 .orElseThrow(() -> new ResourceNotFoundException("Firm not found with id: " + firmId));
 
+       User user =  userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+       
         FirmReview review = new FirmReview();
         review.setFirm(firm);
-        review.setReviewerName(dto.getReviewerName()); 
+        review.setTradingExp(dto.getTradingExp());
+        review.setIsVrfdPurchase(false);
+        review.setUser(user);
         review.setRating(dto.getRating());
         review.setDescription(dto.getDescription());
         review.setIsDeleted(false); 

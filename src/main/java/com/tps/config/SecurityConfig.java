@@ -60,10 +60,12 @@ public class SecurityConfig {
 
                 // Auth endpoints
                 .requestMatchers("/tradingpost/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/whatsapp/**").permitAll()
+    		    .requestMatchers(HttpMethod.POST, "/api/whatsapp/**").permitAll()
 
                 // Example fine-grained rules (adjust as needed)
                 .requestMatchers(HttpMethod.GET, "/tradingpost/api/v1/firms/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/firms").hasRole("ADMIN")
+             //   .requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/firms").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")

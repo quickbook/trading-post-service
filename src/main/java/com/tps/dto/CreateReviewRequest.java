@@ -4,10 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class CreateReviewRequest {
-
-    @NotBlank(message = "Reviewer name is required")
-    private String reviewerName; 
+public class CreateReviewRequest {     
  
     @NotBlank(message = "Trading Experience is required")
     private String tradingExp ;

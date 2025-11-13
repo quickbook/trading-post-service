@@ -25,13 +25,19 @@ public class FirmReview {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private FirmCard firm;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false /* referencedColumnName defaults to 'id' */)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private User user;
 
-    @Column(name = "reviewer_name", nullable = false, length = 100)
-    private String reviewerName;
+    @Column(name = "trading_exp", length = 15)
+    private String tradingExp;    
 
-    @Column(name = "prop_name", length = 150)
-    private String propName;
-
+    @Column(name = "is_vrfd_purchase", length = 5)
+    private Boolean isVrfdPurchase;    
+    
     @Column(name = "rating", length = 5)
     private String rating;
 
