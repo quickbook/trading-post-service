@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,6 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,76 +27,104 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    private final JwtAuthFilter jwtAuthFilter;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
-	private final JwtAuthFilter jwtAuthFilter;
-	private final CustomAccessDeniedHandler accessDeniedHandler;
-
-
-
-	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-		http
-				// Disable CSRF (since we use JWT)
-				.csrf(csrf -> csrf.disable())
-
-				// Enable CORS for frontend apps (React, Angular, etc.)
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				// Make the app stateless (no sessions)
-				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-				// Define endpoint access rules
-				.authorizeHttpRequests(reg -> reg
-						// Allow Swagger / OpenAPI docs
-						.requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/openapi.yaml")
-						.permitAll()
-
-						// Allow CORS preflight requests
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers(HttpMethod.OPTIONS, "/tradingpost/**").permitAll()
-
-						// Allow token issue and refresh endpoints (public)
-						.requestMatchers("/tradingpost/auth/**").permitAll()
-
-						// 1. Read-only GET access for ALL authenticated users (list, get by ID)
-						.requestMatchers(HttpMethod.GET, "/tradingpost/api/v1/firms/**").authenticated()
-
-						// 2. Write access (POST, PUT, PATCH, DELETE) restricted to ADMIN role
-						.requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/firms").hasRole("ADMIN")
-						.requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
-						.requestMatchers(HttpMethod.PATCH, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
-						.requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
-						
-						// Require authentication for user-related endpoints
-						.requestMatchers("/tradingpost/api/v1/users/**").authenticated()
-						
-						// All other endpoints must also be authenticated
-						.anyRequest().authenticated())
-				.exceptionHandling(eh -> eh.accessDeniedHandler(accessDeniedHandler))
-
-				// Add custom JWT validation filter
-				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-		return http.build();
-	}
-
+    // BCrypt password encoder
     @Bean
-    	CorsConfigurationSource corsConfigurationSource() {
-	        CorsConfiguration config = new CorsConfiguration();
-	        config.setAllowedOrigins(List.of(
-	            "http://localhost:5173",
-	            "https://dev01-ui.pranalyticx.cloud/"
-	        ));
-	        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-	        config.setAllowedHeaders(List.of("*"));
-	        config.setAllowCredentials(true);
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	        source.registerCorsConfiguration("/**", config);
-	        return source;
-	    }
+    /**
+     * Main security filter chain. Uses http.cors(...) and ensures OPTIONS is permitted early.
+     */
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http
+            // cors configured below
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+
+            // stateless session (we use JWT)
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            // authorization rules
+            .authorizeHttpRequests(reg -> reg
+                // Swagger & docs
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/openapi.yaml").permitAll()
+
+                // Allow CORS preflight requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // Auth endpoints
+                .requestMatchers("/tradingpost/auth/**").permitAll()
+
+                // Example fine-grained rules (adjust as needed)
+                .requestMatchers(HttpMethod.GET, "/tradingpost/api/v1/firms/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/firms").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
+
+                .requestMatchers("/tradingpost/api/v1/users/**").authenticated()
+
+                // everything else authenticated
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(eh -> eh.accessDeniedHandler(accessDeniedHandler))
+
+            // add JWT filter (before UsernamePasswordAuthenticationFilter)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    /**
+     * Strong CORS configuration. Add allowed origins and/or allowedOriginPatterns.
+     * Note: if you set allowCredentials(true) you cannot use "*" for origins.
+     */
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // Exact origins you want to allow (add staging/production)
+        config.setAllowedOrigins(List.of(
+            "http://localhost:5173",
+            "https://dev01-ui.pranalyticx.cloud"
+        ));
+
+        // If you need wildcard patterns (subdomains), prefer allowedOriginPatterns:
+        // config.setAllowedOriginPatterns(List.of("http://localhost:*", "https://*.pranalyticx.cloud"));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        // Allow headers commonly needed (Authorization is critical)
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
+        // Expose headers to browser if backend sends them
+        config.setExposedHeaders(List.of("Authorization", "Content-Disposition"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Apply to all endpoints
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    /**
+     * Register a CorsFilter with highest precedence so it runs BEFORE other filters (including JWT).
+     * This helps ensure preflight (OPTIONS) requests are handled and CORS headers applied early.
+     *
+     * Note: call the local corsConfigurationSource() directly to avoid autowiring ambiguity
+     * (Spring Boot registers other CorsConfigurationSource beans which caused the earlier error).
+     */
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
+        CorsFilter corsFilter = new CorsFilter(corsConfigurationSource()); // call directly, no ambiguity
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(corsFilter);
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
+    }
 }

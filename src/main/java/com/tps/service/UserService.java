@@ -68,7 +68,7 @@ public class UserService {
 
 	public RegisterResponse userRegister(@Valid RegisterRequest registerRequest) {
 
-		if (userRepository.findByUserNameOrGmail(registerRequest.getUserName()).isPresent()) {
+		if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
 			throw new DuplicateResourceException("Username  is already taken!");
 		}
 

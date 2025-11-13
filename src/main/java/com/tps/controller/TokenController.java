@@ -41,11 +41,11 @@ public class TokenController {
 	public ResponseEntity<?> token(HttpServletRequest request) {
 		String ip = clientIp(request);
 		 log.info("Requested IP {}" , ip);
-		if (!ipAllowlist.isAllowed(ip)) {
+	/*	if (!ipAllowlist.isAllowed(ip)) {
 			 log.info("IP not in allowlist {}" , ip);
 			return ResponseEntity.status(403)
 					.body(Map.of("error", "forbidden_ip", "error_description", "IP not in allowlist","ipAllowlist",allowList,"requestedIP",ip));
-		}
+		}*/
 		TokenCacheEntry entry = tokens.issueOrReuseForIp(ip);
 		long expiresIn = Duration.between(Instant.now(), entry.accessExpiry()).toSeconds();
 		return ResponseEntity.ok(Map.of("tokenType", "Bearer", "accessToken", entry.accessToken(), "expiresIn",
@@ -58,10 +58,10 @@ public class TokenController {
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refresh(@RequestBody RefreshRequest body, HttpServletRequest request) {
 		String ip = clientIp(request);
-		if (!ipAllowlist.isAllowed(ip)) {
+		/*if (!ipAllowlist.isAllowed(ip)) {
 			return ResponseEntity.status(403)
 					.body(Map.of("error", "forbidden_ip", "error_description", "IP not in allowlist"));
-		}
+		}*/
 		try {
 			TokenCacheEntry entry = tokens.refresh(ip, body.refreshToken());
 			long expiresIn = Duration.between(Instant.now(), entry.accessExpiry()).toSeconds();
