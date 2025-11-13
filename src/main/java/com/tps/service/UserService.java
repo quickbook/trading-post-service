@@ -45,7 +45,7 @@ public class UserService {
 
 	public LoginResponseDto checkLoginDetails(LoginRequest loginRequest, String clientIp) {
 
-		User user = userRepository.findByUserNameOrGmail(loginRequest.getUsername())
+		User user = userRepository.findByUserName(loginRequest.getUsername())
 				.orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
 
 		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
@@ -68,7 +68,7 @@ public class UserService {
 
 	public RegisterResponse userRegister(@Valid RegisterRequest registerRequest) {
 
-		if (userRepository.findByUserNameOrGmail(registerRequest.getUserName()).isPresent()) {
+		if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
 			throw new DuplicateResourceException("Username  is already taken!");
 		}
 
