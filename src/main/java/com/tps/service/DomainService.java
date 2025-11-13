@@ -50,6 +50,8 @@ public class DomainService {
                 .map(country -> new CountryDto(country.getCode(), country.getName()))
                 .collect(Collectors.toList());
     }
+    
+    
 
     
     public List<RoleDto> getAllRoles() {
@@ -102,6 +104,8 @@ public class DomainService {
                 .map(p -> new PayoutFrequencyDto(p.getId(), p.getCode(), p.getLabel(), p.getDescription()))
                 .collect(Collectors.toList());
     }
+    
+    
     
     public List<CurrencyDto> getAllCurrencies() {
         return currencyRepository.findAll().stream()

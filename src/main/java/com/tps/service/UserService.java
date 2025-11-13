@@ -45,7 +45,7 @@ public class UserService {
 
 	public LoginResponseDto checkLoginDetails(LoginRequest loginRequest, String clientIp) {
 
-		User user = userRepository.findByUserNameOrGmail(loginRequest.getUsername())
+		User user = userRepository.findByUserName(loginRequest.getUsername())
 				.orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
 
 		if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {

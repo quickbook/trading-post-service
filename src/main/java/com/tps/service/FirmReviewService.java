@@ -35,8 +35,7 @@ public class FirmReviewService {
 
         FirmReview review = new FirmReview();
         review.setFirm(firm);
-        review.setReviewerName(dto.getReviewerName());
-        review.setPropName(dto.getPropName());
+        review.setReviewerName(dto.getReviewerName()); 
         review.setRating(dto.getRating());
         review.setDescription(dto.getDescription());
         review.setIsDeleted(false); 
