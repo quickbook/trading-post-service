@@ -1,31 +1,34 @@
 package com.tps.mapper;
 
 import java.util.ArrayList;
-import java.util.HashSet; 
-import java.util.List; 
-import java.util.Set; 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.tps.dto.AboutDto;
+import com.tps.dto.ChallengeCardDto;
+import com.tps.dto.FirmLiteDto;
 // Import all DTOs
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmResponse;
-import com.tps.dto.TradingConditionsDto;
-import com.tps.dto.AboutDto;
-import com.tps.dto.ChallengeCardDto;
-import com.tps.dto.PriceDto;
 import com.tps.dto.FirmReviewDto; // NEW IMPORT
-
+import com.tps.dto.PriceDto;
+import com.tps.dto.TradingConditionsDto;
+import com.tps.exceptions.ResourceNotFoundException;
+import com.tps.model.ChallengeCardView;
+import com.tps.model.Country;
 // Import all Models and Repositories
 import com.tps.model.FirmCard;
 import com.tps.model.FirmStatus;
+import com.tps.model.TradingPlatform;
 import com.tps.model.WithdrawalSpeed;
-import com.tps.model.TradingPlatform; 
-import com.tps.model.ChallengeCardView; 
-import com.tps.repository.TradingPlatformRepository; 
-import com.tps.exceptions.ResourceNotFoundException; 
+import com.tps.repository.CountryRepository;
+import com.tps.repository.TradingPlatformRepository;
 
 import lombok.RequiredArgsConstructor; 
 
@@ -36,9 +39,14 @@ public class FirmMapper {
     
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final TradingPlatformRepository tradingPlatformRepository; 
+    private final CountryRepository countryRepository;
 
     // --- MAPPING VIEW ENTITY TO DTO ---
     
+    public FirmLiteDto toLiteDto(FirmCard entity) {
+        if (entity == null) return null;
+        return new FirmLiteDto(entity.getId(), entity.getName());
+    }
     
     public ChallengeCardDto toDto(ChallengeCardView view) {
         if (view == null) return null;
@@ -72,13 +80,17 @@ public class FirmMapper {
         dto.setSlug(entity.getSlug());
         dto.setWebsite(entity.getWebsite());
         dto.setLogo(entity.getLogo());
-        dto.setCountryCode(entity.getCountryCode());  
-        dto.setCountry(entity.getCountryCode());
+        dto.setCountryCode(entity.getCountryCode()); 
+        String countryName = countryRepository.findByCode(entity.getCountryCode())
+                .map(Country::getName)
+                .orElse(entity.getCountryCode());
+        dto.setCountry(countryName);
         dto.setIsTrusted(entity.getIsTrusted());
         dto.setRating(entity.getRating());
         dto.setAllRatings(entity.getAllRatings());
         dto.setDescription(entity.getDescription());
-        dto.setFirmPageURL(entity.getBuyUrl());
+        //dto.setFirmPageURL(entity.getBuyUrl());
+        dto.setBuyUrl(entity.getBuyUrl());
         dto.setFirmType(entity.getFirmType());        
       
 
@@ -154,7 +166,12 @@ public class FirmMapper {
         entity.setSlug(dto.getSlug());
         entity.setWebsite(dto.getWebsite());
         entity.setLogo(dto.getLogo());
-        entity.setCountryCode(dto.getCountryCode());      
+        String countryCode = dto.getCountryCode();
+        if (countryCode != null) {
+            countryRepository.findByCode(countryCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Country not found for code: " + countryCode));
+        }
+        entity.setCountryCode(countryCode);      
         entity.setIsTrusted(dto.getIsTrusted());
         entity.setRating(dto.getRating());
         entity.setAllRatings(dto.getAllRatings());

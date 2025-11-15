@@ -1,6 +1,7 @@
 package com.tps.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tps.dto.ApiResponse; 
-import com.tps.dto.FirmFilterOptionsDto;
+import com.tps.dto.ApiResponse;
+import com.tps.dto.FirmLiteDto;
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
 import com.tps.dto.FirmResponse; // Import FirmResponse
@@ -66,6 +67,20 @@ public class FirmsController {
 //    }
 
     // ---------- List with pagination + optional filters ----------
+    
+    @GetMapping("/list-lite")
+    public ResponseEntity<ApiResponse<List<FirmLiteDto>>> getAllFirmLite(HttpServletRequest request) {
+        List<FirmLiteDto> firms = firmService.getAllFirmIdsAndNames();
+
+        return ResponseEntity.ok(ApiResponse.<List<FirmLiteDto>>builder()
+                .success(true)
+                .message("Firm list fetched successfully")
+                .data(firms)
+                .status(HttpStatus.OK)
+                .path(request.getRequestURI())
+                .timestamp(System.currentTimeMillis())
+                .build());
+    }
     
     @GetMapping            
     public ResponseEntity<ApiResponse<Page<FirmResponse>>> listFirms(

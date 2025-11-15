@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.tps.dto.FirmLiteDto;
 import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
 import com.tps.dto.FirmResponse;
@@ -61,6 +62,12 @@ public class FirmService {
 	         return Collections.emptyList();
 	     }
 	 }
+	 
+	 public List<FirmLiteDto> getAllFirmIdsAndNames() {
+	        return firmRepository.findAll().stream()
+	                .map(firmMapper::toLiteDto)
+	                .collect(Collectors.toList());
+	    }
 	
      // 2. getById() - Fetches challenge card data and uses detailed mapper
 	 @Transactional(readOnly = true)

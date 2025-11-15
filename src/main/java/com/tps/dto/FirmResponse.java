@@ -13,7 +13,8 @@ public class FirmResponse {
 	 private String slug;
 	 private String rating;
 	 private String logo;
-	 private String firmPageURL;
+	 //private String firmPageURL;
+	 private String buyUrl;
 	 private String firmType;
 	 private Integer allRatings;
 	 private String country;
