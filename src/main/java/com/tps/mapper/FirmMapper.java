@@ -89,7 +89,7 @@ public class FirmMapper {
         dto.setIsTrusted(entity.getIsTrusted());
         dto.setRating(entity.getRating());
         dto.setAllRatings(entity.getAllRatings());
-        dto.setDescription(entity.getDescription());
+       // dto.setDescription(entity.getDescription());
         //dto.setFirmPageURL(entity.getBuyUrl());
         dto.setBuyUrl(entity.getBuyUrl());
         dto.setFirmType(entity.getFirmType());        
@@ -246,7 +246,7 @@ public class FirmMapper {
     
     // Helper to map Platform entity back to a code string
     private String mapEntityToPlatformCode(FirmPlatform entity) {
-        return entity.getDomainPlatform() != null ? entity.getDomainPlatform().getCode() : "UNKNOWN";
+        return entity.getDomainPlatform() != null ? entity.getDomainPlatform().getName() : "UNKNOWN";
     }
 
     // --- Enum Helpers ---
