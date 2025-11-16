@@ -9,8 +9,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.tps.util.FirmStatus;
-import com.tps.util.WithdrawalSpeedEnum;
+import com.tps.enums.FirmStatus;
+import com.tps.enums.WithdrawalSpeedEnum;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;

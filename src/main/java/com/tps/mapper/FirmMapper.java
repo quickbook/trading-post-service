@@ -19,6 +19,8 @@ import com.tps.dto.request.FirmRequest;
 import com.tps.dto.response.FirmResponse;
 import com.tps.dto.response.ReviewResponse;
 import com.tps.dto.response.TradingPlatformDto;
+import com.tps.enums.FirmStatus;
+import com.tps.enums.WithdrawalSpeedEnum;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.model.ChallengeCardView;
 import com.tps.model.DmnCountry;
@@ -28,8 +30,6 @@ import com.tps.model.FirmCard;
 import com.tps.model.FirmPlatform;
 import com.tps.repository.CountryRepository;
 import com.tps.repository.TradingPlatformRepository;
-import com.tps.util.FirmStatus;
-import com.tps.util.WithdrawalSpeedEnum;
 
 import lombok.RequiredArgsConstructor; 
 
@@ -101,7 +101,7 @@ public class FirmMapper {
         conditionsDto.setMaximumAccountSizeUsd(entity.getMaxAccountSizeUsd());
         conditionsDto.setProfitSplitPct(entity.getProfitSplit() != null ? entity.getProfitSplit().intValue() : null);
         conditionsDto.setDiscountCode(entity.getDiscountCode());
-        conditionsDto.setWithdrawalSpeed(entity.getWithdrawalSpeed());
+        conditionsDto.setWithdrawalSpeed(mapWithdrawalSpeedToString(entity.getWithdrawalSpeed()));
 
         try {
             if (entity.getKeyFeatures() != null) {
@@ -157,38 +157,39 @@ public class FirmMapper {
     
     // --- DTO -> Entity (For POST/PUT operations) ---
 
-    public FirmCard toEntity(FirmRequest dto) {
-        if (dto == null) return null;
+    public FirmCard toEntity(FirmRequest request) {
+        if (request == null) return null;
 
         FirmCard entity = new FirmCard();
         
         // 1. Map Top-Level Fields
-        entity.setName(dto.getName());
-        entity.setSlug(dto.getSlug());
-        entity.setWebsite(dto.getWebsite());
-        entity.setLogo(dto.getLogo());
-        String countryCode = dto.getCountryCode();
+        entity.setName(request.getName());
+        entity.setSlug(request.getSlug());
+        entity.setWebsite(request.getWebsite());
+        entity.setLogo(request.getLogo());
+        String countryCode = request.getCountryCode();
         if (countryCode != null) {
             countryRepository.findByCode(countryCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Country not found for code: " + countryCode));
         }
         entity.setCountryCode(countryCode);      
-        entity.setIsTrusted(dto.getIsTrusted());
-        entity.setRating(dto.getRating());
-        entity.setAllRatings(dto.getAllRatings());
-        entity.setDescription(dto.getDescription());
+        entity.setIsTrusted(request.getIsTrusted());
+        entity.setRating(request.getRating());
+        entity.setAllRatings(request.getAllRatings());
+        entity.setDescription(request.getDescription());
         entity.setUpdated(true); 
-        entity.setFirmType(dto.getFirmType()); 
-        entity.setBuyUrl(dto.getFirmPageURL()); 
+        entity.setFirmType(request.getFirmType()); 
+        entity.setBuyUrl(request.getFirmPageURL()); 
+        entity.setIsTrusted(request.getIsTrusted());
 
 
         // 2. Map TradingConditions (flattened)
-        TradingConditionsDto conditions = dto.getTradingConditions();
+        TradingConditionsDto conditions = request.getTradingConditions();
         if (conditions != null) {
             entity.setMaxAccountSizeUsd(conditions.getMaximumAccountSizeUsd());
             entity.setProfitSplit(conditions.getProfitSplitPct() != null ? conditions.getProfitSplitPct().shortValue() : null);
             entity.setDiscountCode(conditions.getDiscountCode());
-            entity.setWithdrawalSpeed(conditions.getWithdrawalSpeed());
+            entity.setWithdrawalSpeed(mapWithdrawalSpeed(conditions.getWithdrawalSpeed()));
             
             try {
                 if (conditions.getKeyFeatures() != null) {
@@ -213,7 +214,7 @@ public class FirmMapper {
         }
         
         // 3. Map About (flattened)
-        AboutDto about = dto.getAbout();
+        AboutDto about = request.getAbout();
         if (about != null) {
             entity.setLegalName(about.getLegalName());
             entity.setRegistrationNo(about.getRegistrationNo());
@@ -221,8 +222,7 @@ public class FirmMapper {
             entity.setFounders(about.getFounders());
             entity.setHeadquarters(about.getHeadquarters());
             entity.setJurisdiction(about.getJurisdiction());
-            entity.setFirmStatus(mapFirmStatus(about.getFirmStatus()));
-            
+            entity.setFirmStatus(mapFirmStatus(about.getFirmStatus()));            
             entity.setFoundedYear(about.getFoundedYear());
             entity.setAboutDescription(about.getDescription());
 
@@ -300,7 +300,7 @@ public class FirmMapper {
             existingEntity.setMaxAccountSizeUsd(conditions.getMaximumAccountSizeUsd());
             existingEntity.setProfitSplit(conditions.getProfitSplitPct() != null ? conditions.getProfitSplitPct().shortValue() : null);
             existingEntity.setDiscountCode(conditions.getDiscountCode());
-            existingEntity.setWithdrawalSpeed(conditions.getWithdrawalSpeed());
+            existingEntity.setWithdrawalSpeed(mapWithdrawalSpeed(conditions.getWithdrawalSpeed()));
             
             try {
                 if (conditions.getKeyFeatures() != null) {

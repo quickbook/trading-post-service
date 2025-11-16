@@ -18,12 +18,12 @@ import com.tps.dto.FirmQuery;
 import com.tps.dto.request.FirmRequest;
 import com.tps.dto.response.FirmResponse;
 import com.tps.dto.response.ReviewResponse;
+import com.tps.enums.FirmStatus;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmMapper;
 import com.tps.model.ChallengeCardView; // NEW: View Entity
 import com.tps.model.FirmCard;
-import com.tps.util.FirmStatus;
 import com.tps.repository.ChallengeCardViewRepository; // NEW: View Repository
 import com.tps.repository.FirmRepository;
 

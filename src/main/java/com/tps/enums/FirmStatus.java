@@ -1,4 +1,4 @@
-package com.tps.util;
+package com.tps.enums;
 
 public enum FirmStatus {
     ACTIVE,
