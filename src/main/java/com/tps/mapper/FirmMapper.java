@@ -29,7 +29,7 @@ import com.tps.model.FirmPlatform;
 import com.tps.repository.CountryRepository;
 import com.tps.repository.TradingPlatformRepository;
 import com.tps.util.FirmStatus;
-import com.tps.util.WithdrawalSpeed;
+import com.tps.util.WithdrawalSpeedEnum;
 
 import lombok.RequiredArgsConstructor; 
 
@@ -251,16 +251,16 @@ public class FirmMapper {
 
     // --- Enum Helpers ---
 
-    private WithdrawalSpeed mapWithdrawalSpeed(String value) {
+    private WithdrawalSpeedEnum mapWithdrawalSpeed(String value) {
         if (value == null) return null;
         try {
-            return WithdrawalSpeed.valueOf(value.toUpperCase().replace(' ', '_').replace('-', '_'));
+            return WithdrawalSpeedEnum.valueOf(value.toUpperCase().replace(' ', '_').replace('-', '_'));
         } catch (IllegalArgumentException e) {
             return null;
         }
     }
 
-    private String mapWithdrawalSpeedToString(WithdrawalSpeed speed) {
+    private String mapWithdrawalSpeedToString(WithdrawalSpeedEnum speed) {
         return speed != null ? speed.getValue() : null;
     }
     

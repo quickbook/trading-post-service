@@ -1,6 +1,6 @@
 package com.tps.util;
 
-public enum WithdrawalSpeed {
+public enum WithdrawalSpeedEnum {
 	
 	DAILY("Daily"), 
 	WEEKLY("Weekly"), 
@@ -10,7 +10,7 @@ public enum WithdrawalSpeed {
     
     private final String value;
     
-    WithdrawalSpeed(String value) {
+    WithdrawalSpeedEnum(String value) {
         this.value = value;
     }
 

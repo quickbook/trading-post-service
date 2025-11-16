@@ -2,7 +2,7 @@ package com.tps.dto;
 
 import java.util.List;
 
-import com.tps.util.WithdrawalSpeed;
+import com.tps.util.WithdrawalSpeedEnum;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -37,7 +37,7 @@ public class TradingConditionsDto {
      * Withdrawal speed — ENUM (not validated now because domain driven)
      */
     @NotBlank(message = "Withdrawal speed is required")
-    private WithdrawalSpeed withdrawalSpeed;
+    private WithdrawalSpeedEnum withdrawalSpeed;
 
     /**
      * Key Features — structure only (non empty), values validated in service

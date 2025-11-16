@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.tps.util.FirmStatus;
-import com.tps.util.WithdrawalSpeed;
+import com.tps.util.WithdrawalSpeedEnum;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
@@ -80,7 +80,7 @@ public class FirmCard {
     
     @Enumerated(EnumType.STRING)
     @Column(name="withdrawal_speed", columnDefinition = "ENUM('WEEKLY','BIWEEKLY','MONTHLY','ON_REQUEST')")
-    private WithdrawalSpeed withdrawalSpeed;
+    private WithdrawalSpeedEnum withdrawalSpeed;
     @Column(name="key_features", columnDefinition = "JSON")
     private String keyFeatures; 
 
