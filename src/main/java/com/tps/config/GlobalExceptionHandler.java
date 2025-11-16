@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import com.tps.dto.ApiResponse;
 import com.tps.dto.ErrorDetails;
+import com.tps.dto.response.ApiResponse;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.InvalidCredentialsException;
 import com.tps.exceptions.ResourceNotFoundException;

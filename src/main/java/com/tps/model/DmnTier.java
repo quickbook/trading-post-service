@@ -11,7 +11,7 @@ import lombok.Data;
 @Entity
 @Table(name = "dmn_tiers")
 @Data
-public class Tier {
+public class DmnTier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

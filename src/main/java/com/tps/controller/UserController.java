@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tps.dto.ApiResponse;
-import com.tps.dto.LoginRequest;
-import com.tps.dto.LoginResponseDto;
-import com.tps.dto.RegisterRequest;
-import com.tps.dto.RegisterResponse;
-import com.tps.dto.UserResponse;
-import com.tps.dto.UserUpdateRequest;
+import com.tps.dto.request.LoginRequest;
+import com.tps.dto.request.RegisterRequest;
+import com.tps.dto.request.UserRequest;
+import com.tps.dto.response.ApiResponse;
+import com.tps.dto.response.LoginResponse;
+import com.tps.dto.response.RegisterResponse;
+import com.tps.dto.response.UserResponse;
 import com.tps.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,13 +35,13 @@ public class UserController {
 	
 	
 	@PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponseDto>> loginUser(@Valid @RequestBody LoginRequest loginRequest,HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> loginUser(@Valid @RequestBody LoginRequest loginRequest,HttpServletRequest request) {
 		
 		String clientIp = clientIp(request);
 		
-		LoginResponseDto loginData = userService.checkLoginDetails(loginRequest, clientIp);
+		LoginResponse loginData = userService.checkLoginDetails(loginRequest, clientIp);
 		
-        ApiResponse<LoginResponseDto> response = ApiResponse.<LoginResponseDto>builder()
+        ApiResponse<LoginResponse> response = ApiResponse.<LoginResponse>builder()
                 .success(true)
                 .message("Login successful")
                 .data(loginData)
@@ -81,7 +81,7 @@ public class UserController {
 	@PutMapping("/{userName}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable String userName,
-            @Valid @RequestBody UserUpdateRequest updateRequest,
+            @Valid @RequestBody UserRequest updateRequest,
             HttpServletRequest request) {
         
         UserResponse updatedUser = userService.updateUser(userName, updateRequest);

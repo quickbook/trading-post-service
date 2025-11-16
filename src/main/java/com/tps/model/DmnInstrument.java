@@ -9,15 +9,15 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "dmn_platforms")
+@Table(name = "dmn_instruments")
 @Data
-public class TradingPlatform {
+public class DmnInstrument {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 32)
-    private String code;
+    private String code; // e.g., 'FOREX', 'INDICES'
 
     @Column(nullable = false, length = 100)
     private String name; // Used for display label

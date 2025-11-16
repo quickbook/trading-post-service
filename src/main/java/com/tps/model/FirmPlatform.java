@@ -20,7 +20,7 @@ import lombok.ToString;
     @Index(name = "idx_platform_firm_id", columnList = "firm_id"),
     @Index(name = "idx_platform_domain_id", columnList = "platform_id")
 })
-public class Platform {
+public class FirmPlatform {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class Platform {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "platform_id", nullable = false)
-    private TradingPlatform domainPlatform;
+    private DmnTradingPlatform domainPlatform;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "firm_id", columnDefinition = "BIGINT UNSIGNED") 

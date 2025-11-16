@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tps.dto.ApiResponse;
 import com.tps.dto.ErrorDetails;
+import com.tps.dto.response.ApiResponse;
 import com.tps.service.ExceptionLoggingService;
 import com.tps.service.TokenService;
 

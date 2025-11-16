@@ -52,7 +52,7 @@ public class User {
     
     @ManyToOne
     @JoinColumn(name = "country_id",nullable=false)
-    private Country country;
+    private DmnCountry country;
 
  
     private String stateName;

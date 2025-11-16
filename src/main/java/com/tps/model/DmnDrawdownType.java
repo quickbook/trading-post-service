@@ -11,7 +11,7 @@ import lombok.Data;
 @Entity
 @Table(name = "dmn_drawdown_types")
 @Data
-public class DrawdownType {
+public class DmnDrawdownType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,4 +24,9 @@ public class DrawdownType {
 
     @Column(length = 255)
     private String description;
+    
+    @Column(nullable = false, unique = false, length = 10)
+    private String dropDownType;
+    
+    
 }

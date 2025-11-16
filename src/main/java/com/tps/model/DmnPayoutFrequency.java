@@ -9,18 +9,18 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "dmn_instruments")
+@Table(name = "dmn_payout_frequencies")
 @Data
-public class Instrument {
+public class DmnPayoutFrequency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 32)
-    private String code; // e.g., 'FOREX', 'INDICES'
+    private String code; // 'WEEKLY', 'BIWEEKLY'
 
-    @Column(nullable = false, length = 100)
-    private String name; // Used for display label
+    @Column(nullable = false, length = 64)
+    private String label;
 
     @Column(length = 255)
     private String description;

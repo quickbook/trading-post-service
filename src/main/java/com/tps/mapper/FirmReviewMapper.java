@@ -1,7 +1,8 @@
 package com.tps.mapper;
 
 import org.springframework.stereotype.Component;
-import com.tps.dto.FirmReviewDto;
+
+import com.tps.dto.response.ReviewResponse;
 import com.tps.model.FirmReview;
 
 @Component
@@ -10,12 +11,12 @@ public class FirmReviewMapper {
     /**
      * Converts a FirmReview entity to a DTO for responses.
      */
-    public FirmReviewDto toDto(FirmReview entity) {
+    public ReviewResponse toDto(FirmReview entity) {
         if (entity == null) {
             return null;
         }
 
-        FirmReviewDto dto = new FirmReviewDto();
+        ReviewResponse dto = new ReviewResponse();
         dto.setId(entity.getId());
         dto.setReviewerName(getReviewerName(entity));     
         dto.setRating(entity.getRating());

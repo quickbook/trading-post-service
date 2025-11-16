@@ -1,7 +1,7 @@
 package com.tps.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.tps.model.DrawdownType;
+import com.tps.model.DmnDrawdownType;
 
-public interface DrawdownTypeRepository extends JpaRepository<DrawdownType, Long> {
+public interface DrawdownTypeRepository extends JpaRepository<DmnDrawdownType, Long> {
 }

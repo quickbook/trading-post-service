@@ -1,7 +1,6 @@
-package com.tps.dto;
+package com.tps.dto.response;
 
-
-public record LoginResponseDto(
+public record LoginResponse(
     UserResponse user, 
     String accessToken, 
     String refreshToken, 

@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tps.dto.CreateReviewRequest;
-import com.tps.dto.FirmReviewDto;
+import com.tps.dto.request.ReviewRequest;
+import com.tps.dto.response.ReviewResponse;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmReviewMapper;
 import com.tps.model.FirmCard;
@@ -32,7 +32,7 @@ public class FirmReviewService {
     /**
      * Create a new review for a firm.
      */
-    public FirmReviewDto createReview(Long firmId, Long userId,CreateReviewRequest dto) {
+    public ReviewResponse createReview(Long firmId, Long userId,ReviewRequest dto) {
         FirmCard firm = firmRepository.findById(firmId)
                 .orElseThrow(() -> new ResourceNotFoundException("Firm not found with id: " + firmId));
 
@@ -53,7 +53,7 @@ public class FirmReviewService {
     }
     
     @Transactional(readOnly = true)
-    public List<FirmReviewDto> getReviewsForFirm(Long firmId) {
+    public List<ReviewResponse> getReviewsForFirm(Long firmId) {
         // First, check if the firm exists
         if (!firmRepository.existsById(firmId)) {
             throw new ResourceNotFoundException("Firm not found with id: " + firmId);
@@ -66,7 +66,7 @@ public class FirmReviewService {
     }
     
     @Transactional(readOnly = true)
-    public List<FirmReviewDto> getAllActiveReviews() {
+    public List<ReviewResponse> getAllActiveReviews() {
         return reviewRepository.findByIsDeletedFalse()
                 .stream()
                 .map(reviewMapper::toDto)
@@ -74,7 +74,7 @@ public class FirmReviewService {
     }
     
     @Transactional(readOnly = true)
-    public FirmReviewDto getReviewById(Long reviewId) {
+    public ReviewResponse getReviewById(Long reviewId) {
         FirmReview review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + reviewId));
         

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.tps.model.FirmCard;
-import com.tps.model.FirmStatus; // Added import
+import com.tps.util.FirmStatus;
 
 
 @Repository

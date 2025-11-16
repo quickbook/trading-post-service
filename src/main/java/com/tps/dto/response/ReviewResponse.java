@@ -1,10 +1,10 @@
-package com.tps.dto;
+package com.tps.dto.response;
 
 import java.time.Instant;
 import lombok.Data;
 
 @Data
-public class FirmReviewDto {
+public class ReviewResponse {
 	
     private Long id;
     private Long firmId;

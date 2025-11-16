@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tps.dto.ApiResponse;
-import com.tps.dto.CreateReviewRequest;
-import com.tps.dto.FirmReviewDto;
+import com.tps.dto.request.ReviewRequest;
+import com.tps.dto.response.ApiResponse;
+import com.tps.dto.response.ReviewResponse;
 import com.tps.service.FirmReviewService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,15 +34,15 @@ public class FirmReviewController {
      * Create a new review for a specific firm.
      */
     @PostMapping("/firm/{firmId}/{userId}")
-    public ResponseEntity<ApiResponse<FirmReviewDto>> createReview(
+    public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @PathVariable Long firmId,@PathVariable Long userId,
-            @Valid @RequestBody CreateReviewRequest dto,
+            @Valid @RequestBody ReviewRequest dto,
             HttpServletRequest request) {
         
-        FirmReviewDto createdReview = reviewService.createReview(firmId, userId,dto);
+        ReviewResponse createdReview = reviewService.createReview(firmId, userId,dto);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(
-            ApiResponse.<FirmReviewDto>builder()
+            ApiResponse.<ReviewResponse>builder()
                 .success(true)
                 .message("Review created successfully")
                 .data(createdReview)
@@ -54,13 +54,13 @@ public class FirmReviewController {
     }
     
     @GetMapping("/firm/{firmId}")
-    public ResponseEntity<ApiResponse<List<FirmReviewDto>>> getReviewsForFirm(
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsForFirm(
             @PathVariable Long firmId, HttpServletRequest request) {
         
-        List<FirmReviewDto> reviews = reviewService.getReviewsForFirm(firmId);
+        List<ReviewResponse> reviews = reviewService.getReviewsForFirm(firmId);
         
         return ResponseEntity.ok(
-            ApiResponse.<List<FirmReviewDto>>builder()
+            ApiResponse.<List<ReviewResponse>>builder()
                 .success(true)
                 .message("Reviews fetched successfully")
                 .data(reviews)
@@ -71,12 +71,12 @@ public class FirmReviewController {
         );
     }
     @GetMapping
-    public ResponseEntity<ApiResponse<List<FirmReviewDto>>> getAllReviews(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getAllReviews(HttpServletRequest request) {
         
-        List<FirmReviewDto> reviews = reviewService.getAllActiveReviews();
+        List<ReviewResponse> reviews = reviewService.getAllActiveReviews();
         
         return ResponseEntity.ok(
-            ApiResponse.<List<FirmReviewDto>>builder()
+            ApiResponse.<List<ReviewResponse>>builder()
                 .success(true)
                 .message("All active reviews fetched successfully")
                 .data(reviews)
@@ -88,13 +88,13 @@ public class FirmReviewController {
     }
     
     @GetMapping("/{reviewId}")
-    public ResponseEntity<ApiResponse<FirmReviewDto>> getReviewById(
+    public ResponseEntity<ApiResponse<ReviewResponse>> getReviewById(
             @PathVariable Long reviewId, HttpServletRequest request) {
         
-        FirmReviewDto review = reviewService.getReviewById(reviewId);
+        ReviewResponse review = reviewService.getReviewById(reviewId);
         
         return ResponseEntity.ok(
-            ApiResponse.<FirmReviewDto>builder()
+            ApiResponse.<ReviewResponse>builder()
                 .success(true)
                 .message("Review fetched successfully")
                 .data(review)

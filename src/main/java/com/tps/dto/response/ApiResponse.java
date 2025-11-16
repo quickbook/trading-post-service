@@ -1,7 +1,9 @@
-package com.tps.dto;
+package com.tps.dto.response;
 
  
 import org.springframework.http.HttpStatus;
+
+import com.tps.dto.ErrorDetails;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

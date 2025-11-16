@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tps.dto.ApiResponse;
 import com.tps.dto.CountryDto;
 import com.tps.dto.CurrencyDto;
 import com.tps.dto.ChallengePhaseFullDto;
 import com.tps.dto.DrawdownTypeDto;
 import com.tps.dto.InstrumentDto;
 import com.tps.dto.PayoutFrequencyDto;
-import com.tps.dto.TierDto;
-import com.tps.dto.TradingPlatformDto;
 import com.tps.dto.RoleDto;
+import com.tps.dto.TierDto;
+import com.tps.dto.response.ApiResponse;
+import com.tps.dto.response.TradingPlatformDto;
 import com.tps.service.DomainService;
 
 import jakarta.servlet.http.HttpServletRequest;

@@ -11,7 +11,7 @@ import lombok.Data;
 @Entity
 @Table(name = "dmn_challenge_phases")
 @Data
-public class ChallengePhase {
+public class DmnChallengePhase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

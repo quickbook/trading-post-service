@@ -1,11 +1,11 @@
-package com.tps.dto;
+package com.tps.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserUpdateRequest {
+public class UserRequest {
     
     @Size(max = 50, message = "First name must be under 50 characters")
     private String firstName;

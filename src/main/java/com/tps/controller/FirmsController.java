@@ -19,15 +19,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tps.dto.ApiResponse;
 import com.tps.dto.FirmLiteDto;
-import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
-import com.tps.dto.FirmResponse; // Import FirmResponse
-import com.tps.service.CommonDataService;
-import com.tps.service.FirmCategoryService;
+import com.tps.dto.request.FirmRequest;
+import com.tps.dto.response.ApiResponse;
+import com.tps.dto.response.FirmResponse; 
 import com.tps.service.FirmService;
-//import com.tps.service.PhaseTypeService;
+ 
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -39,36 +37,12 @@ import lombok.RequiredArgsConstructor;
 @Validated
 public class FirmsController {
 
-    private final FirmCategoryService firmCategoryService;
-    //private final DomainService domainService;
-    private final CommonDataService commonDataService;
+ 
     private final FirmService firmService;
 
-//    // ---------- Meta / filter options ----------  // Waiting for Other Tables
-//    @GetMapping("/filter-options")
-//    public ResponseEntity<ApiResponse<FirmFilterOptionsDto>> getFilterOptions(HttpServletRequest request) {
-//        FirmFilterOptionsDto options = new FirmFilterOptionsDto(
-//                firmCategoryService.getAllActive(),
-//                phaseTypeService.getAllActive(),
-//                commonDataService.getSortOptions(),
-//                commonDataService.getMinAccountSizeOptions()
-//        );
-//
-//        return ResponseEntity.ok(
-//                ApiResponse.<FirmFilterOptionsDto>builder()
-//                        .success(true)
-//                        .message("Filter options fetched successfully")
-//                        .data(options)
-//                        .status(HttpStatus.OK)
-//                        .path(request.getRequestURI())
-//                        .timestamp(System.currentTimeMillis())
-//                        .build()
-//        );
-//    }
-
-    // ---------- List with pagination + optional filters ----------
+     // ---------- List with pagination + optional filters ----------
     
-    @GetMapping("/list-lite")
+    @GetMapping("/firmDmnList")
     public ResponseEntity<ApiResponse<List<FirmLiteDto>>> getAllFirmLite(HttpServletRequest request) {
         List<FirmLiteDto> firms = firmService.getAllFirmIdsAndNames();
 
@@ -120,7 +94,7 @@ public class FirmsController {
 
     // ---------- Create ----------
     @PostMapping
-    public ResponseEntity<ApiResponse<FirmResponse>> create(@Valid @RequestBody FirmPatchRequest firm, HttpServletRequest request) { 
+    public ResponseEntity<ApiResponse<FirmResponse>> create(@Valid @RequestBody FirmRequest firm, HttpServletRequest request) { 
         FirmResponse created = firmService.createFirm(firm); 
 
         return ResponseEntity.created(URI.create("/api/v1/firms/" + created.getId()))
@@ -138,7 +112,7 @@ public class FirmsController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<FirmResponse>> update( 
             @PathVariable Long id,
-            @Valid @RequestBody FirmPatchRequest firmDto,
+            @Valid @RequestBody FirmRequest firmDto,
             HttpServletRequest request
     ) {
         FirmResponse updated = firmService.updateFirm(id, firmDto); 
@@ -158,7 +132,7 @@ public class FirmsController {
     @PatchMapping("/{id}")   
     public ResponseEntity<ApiResponse<FirmResponse>> patch( 
             @PathVariable Long id,
-            @Valid @RequestBody FirmPatchRequest partial,
+            @Valid @RequestBody FirmRequest partial,
             HttpServletRequest request
     ) {
         FirmResponse updated = firmService.patchFirm(id, partial); 

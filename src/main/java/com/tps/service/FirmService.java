@@ -14,16 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.tps.dto.FirmLiteDto;
-import com.tps.dto.FirmPatchRequest;
 import com.tps.dto.FirmQuery;
-import com.tps.dto.FirmResponse;
-import com.tps.dto.FirmReviewDto;
+import com.tps.dto.request.FirmRequest;
+import com.tps.dto.response.FirmResponse;
+import com.tps.dto.response.ReviewResponse;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmMapper;
 import com.tps.model.ChallengeCardView; // NEW: View Entity
 import com.tps.model.FirmCard;
-import com.tps.model.FirmStatus;
+import com.tps.util.FirmStatus;
 import com.tps.repository.ChallengeCardViewRepository; // NEW: View Repository
 import com.tps.repository.FirmRepository;
 
@@ -81,14 +81,14 @@ public class FirmService {
                  
         // Fetch related challenge cards from the view
         List<ChallengeCardView> challengeCards = challengeCardViewRepository.findByFirmId(id);
-        List<FirmReviewDto> reviews = firmReviewService.getReviewsForFirm(id);
+        List<ReviewResponse> reviews = firmReviewService.getReviewsForFirm(id);
         // Use the detailed mapper method to construct the DTO with cards
 	    return firmMapper.toDto(entity, challengeCards, reviews);
 	 }
 	
 	
 	 @Transactional
-	 public FirmResponse createFirm(FirmPatchRequest firm) {
+	 public FirmResponse createFirm(FirmRequest firm) {
 	     log.info("Attempting to create a new firm with name: {}", firm.getName());
 	     
 	     
@@ -112,7 +112,7 @@ public class FirmService {
 	
 	
 	 @Transactional
-	 public FirmResponse updateFirm(Long id, FirmPatchRequest firm) {
+	 public FirmResponse updateFirm(Long id, FirmRequest firm) {
 	     log.info("Attempting to update firm with ID: {}", id);
 	
 	     FirmCard existingEntity = firmRepository.findById(id)
@@ -181,7 +181,7 @@ public class FirmService {
 	 }
 
 	 @Transactional
-	 public FirmResponse patchFirm(Long id, FirmPatchRequest partialFirmDto) {
+	 public FirmResponse patchFirm(Long id, FirmRequest partialFirmDto) {
 	     log.info("Attempting to patch firm with ID: {}", id);
 	     FirmCard existingEntity = firmRepository.findById(id)
 	             .orElseThrow(() -> {

@@ -1,8 +1,9 @@
 package com.tps.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tps.dto.ApiResponse;
 import com.tps.dto.ErrorDetails;
+import com.tps.dto.response.ApiResponse;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

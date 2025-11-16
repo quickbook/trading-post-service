@@ -13,22 +13,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tps.dto.AboutDto;
 import com.tps.dto.ChallengeCardDto;
 import com.tps.dto.FirmLiteDto;
-// Import all DTOs
-import com.tps.dto.FirmPatchRequest;
-import com.tps.dto.FirmResponse;
-import com.tps.dto.FirmReviewDto; // NEW IMPORT
 import com.tps.dto.PriceDto;
 import com.tps.dto.TradingConditionsDto;
+import com.tps.dto.request.FirmRequest;
+import com.tps.dto.response.FirmResponse;
+import com.tps.dto.response.ReviewResponse;
+import com.tps.dto.response.TradingPlatformDto;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.model.ChallengeCardView;
-import com.tps.model.Country;
+import com.tps.model.DmnCountry;
+import com.tps.model.DmnTradingPlatform;
 // Import all Models and Repositories
 import com.tps.model.FirmCard;
-import com.tps.model.FirmStatus;
-import com.tps.model.TradingPlatform;
-import com.tps.model.WithdrawalSpeed;
+import com.tps.model.FirmPlatform;
 import com.tps.repository.CountryRepository;
 import com.tps.repository.TradingPlatformRepository;
+import com.tps.util.FirmStatus;
+import com.tps.util.WithdrawalSpeed;
 
 import lombok.RequiredArgsConstructor; 
 
@@ -69,7 +70,7 @@ public class FirmMapper {
 
     // --- Entity -> DTO (Detailed GET: Accepts view data and reviews) ---
 
-    public FirmResponse toDto(FirmCard entity, List<ChallengeCardView> challengeCards, List<FirmReviewDto> reviews) {
+    public FirmResponse toDto(FirmCard entity, List<ChallengeCardView> challengeCards, List<ReviewResponse> reviews) {
         if (entity == null) return null;
 
         FirmResponse dto = new FirmResponse(); 
@@ -82,7 +83,7 @@ public class FirmMapper {
         dto.setLogo(entity.getLogo());
         dto.setCountryCode(entity.getCountryCode()); 
         String countryName = countryRepository.findByCode(entity.getCountryCode())
-                .map(Country::getName)
+                .map(DmnCountry::getName)
                 .orElse(entity.getCountryCode());
         dto.setCountry(countryName);
         dto.setIsTrusted(entity.getIsTrusted());
@@ -100,7 +101,7 @@ public class FirmMapper {
         conditionsDto.setMaximumAccountSizeUsd(entity.getMaxAccountSizeUsd());
         conditionsDto.setProfitSplitPct(entity.getProfitSplit() != null ? entity.getProfitSplit().intValue() : null);
         conditionsDto.setDiscountCode(entity.getDiscountCode());
-        conditionsDto.setWithdrawalSpeed(mapWithdrawalSpeedToString(entity.getWithdrawalSpeed()));
+        conditionsDto.setWithdrawalSpeed(entity.getWithdrawalSpeed());
 
         try {
             if (entity.getKeyFeatures() != null) {
@@ -156,7 +157,7 @@ public class FirmMapper {
     
     // --- DTO -> Entity (For POST/PUT operations) ---
 
-    public FirmCard toEntity(FirmPatchRequest dto) {
+    public FirmCard toEntity(FirmRequest dto) {
         if (dto == null) return null;
 
         FirmCard entity = new FirmCard();
@@ -187,7 +188,7 @@ public class FirmMapper {
             entity.setMaxAccountSizeUsd(conditions.getMaximumAccountSizeUsd());
             entity.setProfitSplit(conditions.getProfitSplitPct() != null ? conditions.getProfitSplitPct().shortValue() : null);
             entity.setDiscountCode(conditions.getDiscountCode());
-            entity.setWithdrawalSpeed(mapWithdrawalSpeed(conditions.getWithdrawalSpeed()));
+            entity.setWithdrawalSpeed(conditions.getWithdrawalSpeed());
             
             try {
                 if (conditions.getKeyFeatures() != null) {
@@ -231,20 +232,20 @@ public class FirmMapper {
     }
     
     // Looks up the TradingPlatform entity by code and sets it on the Platform join entity.
-    private com.tps.model.Platform mapPlatformCodeToEntity(String code) {
+    private FirmPlatform mapPlatformCodeToEntity(String code) {
         // 1. Look up the domain entity by the code (e.g., "MT5")
-        TradingPlatform domainPlatform = tradingPlatformRepository.findByCode(code)
+    	DmnTradingPlatform domainPlatform = tradingPlatformRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException("Trading platform not found for code: " + code));
         
         // 2. Create the Platform join entity
-        com.tps.model.Platform entity = new com.tps.model.Platform();
+    	FirmPlatform entity = new FirmPlatform();
         entity.setDomainPlatform(domainPlatform); // 3. Set the mandatory FK entity
         
         return entity;
     }
     
     // Helper to map Platform entity back to a code string
-    private String mapEntityToPlatformCode(com.tps.model.Platform entity) {
+    private String mapEntityToPlatformCode(FirmPlatform entity) {
         return entity.getDomainPlatform() != null ? entity.getDomainPlatform().getCode() : "UNKNOWN";
     }
 
@@ -279,7 +280,7 @@ public class FirmMapper {
 
     // --- Update Logic Helpers ---
 
-     public void updateSimpleFields(FirmCard existingEntity, FirmPatchRequest firmDto) {
+     public void updateSimpleFields(FirmCard existingEntity, FirmRequest firmDto) {
          // 1. Map Top-Level Fields
         existingEntity.setName(firmDto.getName());
         existingEntity.setSlug(firmDto.getSlug());
@@ -299,7 +300,7 @@ public class FirmMapper {
             existingEntity.setMaxAccountSizeUsd(conditions.getMaximumAccountSizeUsd());
             existingEntity.setProfitSplit(conditions.getProfitSplitPct() != null ? conditions.getProfitSplitPct().shortValue() : null);
             existingEntity.setDiscountCode(conditions.getDiscountCode());
-            existingEntity.setWithdrawalSpeed(mapWithdrawalSpeed(conditions.getWithdrawalSpeed()));
+            existingEntity.setWithdrawalSpeed(conditions.getWithdrawalSpeed());
             
             try {
                 if (conditions.getKeyFeatures() != null) {
@@ -331,7 +332,7 @@ public class FirmMapper {
      }
      
      // Method to update the Platform Collection (OneToMany relationship)
-     public void updatePlatformCollection(FirmCard existingEntity, FirmPatchRequest firmDto) {
+     public void updatePlatformCollection(FirmCard existingEntity, FirmRequest firmDto) {
          
          if (existingEntity.getPlatforms() != null) {
              existingEntity.getPlatforms().clear();
@@ -343,7 +344,7 @@ public class FirmMapper {
          List<String> platformCodes = firmDto.getTradingConditions().getTradingPlatforms();
          
          if (platformCodes != null) {
-             Set<com.tps.model.Platform> newPlatforms = platformCodes.stream()
+             Set<FirmPlatform> newPlatforms = platformCodes.stream()
                      .map(this::mapPlatformCodeToEntity)
                      .peek(p -> p.setFirmCard(existingEntity))
                      .collect(Collectors.toSet());

@@ -1,10 +1,12 @@
-package com.tps.model;
+package com.tps.util;
 
 public enum WithdrawalSpeed {
-    WEEKLY("Weekly"),
-    BIWEEKLY("Biweekly"),
-    MONTHLY("Monthly"),
-    ON_REQUEST("On_Request");
+	
+	DAILY("Daily"), 
+	WEEKLY("Weekly"), 
+	BIWEEKLY("Biweekly"), 
+	MONTHLY("Monthly"), 
+	ON_REQUEST("On_Request");
     
     private final String value;
     

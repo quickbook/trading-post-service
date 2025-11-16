@@ -9,7 +9,7 @@ import lombok.Data;
 @Entity
 @Table(name = "dmn_currencies")
 @Data
-public class Currency {
+public class DmnCurrency {
     
     @Id 
     @Column(length = 3, nullable = false)

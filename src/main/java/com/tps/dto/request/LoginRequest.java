@@ -1,4 +1,4 @@
-package com.tps.dto;
+package com.tps.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

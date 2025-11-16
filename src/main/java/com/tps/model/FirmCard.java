@@ -9,6 +9,9 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.tps.util.FirmStatus;
+import com.tps.util.WithdrawalSpeed;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -141,7 +144,7 @@ public class FirmCard {
 	private Set<String> assets = new HashSet<>(); 
 
 	@OneToMany(mappedBy = "firmCard", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<Platform> platforms = new HashSet<>();	
+	private Set<FirmPlatform> platforms = new HashSet<>();	
     
     // NOTE: The new OneToMany relationship for AccountPlan will be added here later.
 }

@@ -7,18 +7,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.tps.dto.LoginRequest;
-import com.tps.dto.LoginResponseDto;
-import com.tps.dto.RegisterRequest;
-import com.tps.dto.RegisterResponse;
 import com.tps.dto.TokenCacheEntry;
-import com.tps.dto.UserResponse;
-import com.tps.dto.UserUpdateRequest;
+import com.tps.dto.request.LoginRequest;
+import com.tps.dto.request.RegisterRequest;
+import com.tps.dto.request.UserRequest;
+import com.tps.dto.response.LoginResponse;
+import com.tps.dto.response.RegisterResponse;
+import com.tps.dto.response.UserResponse;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.InvalidCredentialsException;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.UserMapper;
-import com.tps.model.Country;
+import com.tps.model.DmnCountry;
 import com.tps.model.Role;
 import com.tps.model.User;
 import com.tps.repository.CountryRepository;
@@ -43,7 +43,7 @@ public class UserService {
 
 	private final PasswordEncoder passwordEncoder;
 
-	public LoginResponseDto checkLoginDetails(LoginRequest loginRequest, String clientIp) {
+	public LoginResponse checkLoginDetails(LoginRequest loginRequest, String clientIp) {
 
 		User user = userRepository.findByUserName(loginRequest.getUsername())
 				.orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
@@ -58,7 +58,7 @@ public class UserService {
         TokenCacheEntry entry = tokenService.issueTokenWithRole(clientIp, roleName);
         long expiresIn = Duration.between(Instant.now(), entry.accessExpiry()).toSeconds();
         UserResponse userData = userMapper.mapToUserResponse(user);
-        return new LoginResponseDto(
+        return new LoginResponse(
                 userData, 
                 entry.accessToken(), 
                 entry.refreshToken(), 
@@ -76,7 +76,7 @@ public class UserService {
 			throw new DuplicateResourceException("Error: Email is already in use!");
 		}
 
-		Country country = countryRepository.findByCode(registerRequest.getCountryCode()).orElseThrow(
+		DmnCountry country = countryRepository.findByCode(registerRequest.getCountryCode()).orElseThrow(
 				() -> new ResourceNotFoundException("Country not found for code: " + registerRequest.getCountryCode()));
 
 	 
@@ -115,7 +115,7 @@ public class UserService {
 	}
 	
 	@Transactional
-    public UserResponse updateUser(String userName, @Valid UserUpdateRequest dto) {
+    public UserResponse updateUser(String userName, @Valid UserRequest dto) {
         
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + userName));
@@ -150,7 +150,7 @@ public class UserService {
         }
 
         if (StringUtils.hasText(dto.getCountryCode()) && !dto.getCountryCode().equals(user.getCountry().getCode())) {
-            Country newCountry = countryRepository.findByCode(dto.getCountryCode())
+            DmnCountry newCountry = countryRepository.findByCode(dto.getCountryCode())
                     .orElseThrow(() -> new ResourceNotFoundException("Country not found for code: " + dto.getCountryCode()));
             user.setCountry(newCountry);
         }

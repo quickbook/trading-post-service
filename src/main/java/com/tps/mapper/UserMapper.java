@@ -2,7 +2,7 @@ package com.tps.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.tps.dto.UserResponse;
+import com.tps.dto.response.UserResponse;
 import com.tps.model.User;
 
 @Component
