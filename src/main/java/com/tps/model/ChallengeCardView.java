@@ -14,7 +14,6 @@ import org.hibernate.annotations.Immutable; // Marks the entity as read-only
 @Data
 public class ChallengeCardView {
 
-    // Primary key for Hibernate identity - mapped to plan_id for uniqueness
     @Id
     @Column(name = "plan_id")
     private Long planId;

@@ -4,8 +4,12 @@ import java.math.BigDecimal;
 
 import com.tps.dto.PriceDto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChallengeResponse {
 	
 	private Long id;

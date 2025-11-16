@@ -24,11 +24,13 @@ public class FirmResponse {
 	 private String country;
 	 private String countryCode;
 	 private String website;
+	 private String description;
 	 private Boolean isTrusted;	
 	 private TradingConditionsDto tradingConditions;
 	 private AboutDto about;
      private List<ChallengeCardDto> challenges;
      private List<ReviewResponse> reviews;
+	 
 
 	
 }

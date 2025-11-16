@@ -39,4 +39,8 @@ public class ChallengeRequest {
     @NotNull(message = "Price details are required")
     @Valid  // IMPORTANT — validates nested DTO
     private PriceDto price;
+    
+    @NotNull(message = "Firm ID is required in the request body")
+    @Positive(message = "Firm ID must be a positive number")
+    private Long firmId;
 }
