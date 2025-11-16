@@ -59,10 +59,12 @@ public class FirmRequest {
 	 @NotNull(message = "Trusted field must be specified")
 	 private Boolean isTrusted; 
 	 
-	 @Valid
-	 private TradingConditionsDto tradingConditions;
-	 
-	 @Valid
-	 private AboutDto about;
+    @Valid
+    @NotNull(message = "Trading conditions are required")
+    private TradingConditionsDto tradingConditions;
 
+    @Valid
+    @NotNull(message = "About information is required")
+    private AboutDto about;
+	 
 }

@@ -74,4 +74,11 @@ public class AboutDto {
     @Min(value = 1900, message = "Founded year must be >= 1900")
     @Max(value = 2100, message = "Founded year must be <= 2100")
     private Short foundedYear; 
+    
+    // Optional: legal registration URL, CEO name, etc.
+    @Size(max = 200, message = "CEO name must be <= 200 characters")
+    private String ceoName;
+
+    @Size(max = 300, message = "Extra notes must be <= 300 characters")
+    private String extraNotes;
 }
