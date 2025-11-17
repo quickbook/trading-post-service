@@ -57,7 +57,7 @@ public class TradingConditionsDto {
     private List<@NotBlank String> availableAssets;
 
     /* Spreads & Commission */
-    private boolean rawSpreads; // true -> raw spread model
+    private Boolean  rawSpreads; // true -> raw spread model
     @DecimalMin(value = "0.0", inclusive = true, message = "Commission per lot must be >= 0")
     @Digits(integer = 10, fraction = 2, message = "Commission must be a valid monetary value")
     private BigDecimal commissionPerLot;    
@@ -88,12 +88,12 @@ public class TradingConditionsDto {
     private List<@NotBlank String> prohibitedStrategies;
 
     /* Hedging allowed? IP restrictions & device rules */
-    private boolean hedgingAllowed;
-    private boolean allowMultipleDevices;
-    private boolean requireIpConsistency; // true => IP must remain consistent across devices
+    private Boolean  hedgingAllowed;
+    private Boolean  allowMultipleDevices;
+    private Boolean  requireIpConsistency; // true => IP must remain consistent across devices
 
     /* Consistency rule applied? (your data: not applied) */
-    private boolean consistencyRuleApplied;
+    private Boolean  consistencyRuleApplied;
 
     /* Scaling plan */
     @Min(value = 1, message = "Scaling criteria days must be at least 1")
@@ -116,7 +116,7 @@ public class TradingConditionsDto {
     @Email(message = "Support email must be valid")
     private String supportEmail;
 
-    private boolean liveChatAvailable;
+    private Boolean  liveChatAvailable;
 
     @Pattern(regexp = "^(https?://).+", message = "Discord URL must be a valid URL")
     private String discordUrl;

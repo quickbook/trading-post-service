@@ -8,13 +8,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
 
-@OpenAPIDefinition(
-		  info = @Info(
-		    title = "Trade Post Firms API",
-		    version = "v1",
-		    description = "Endpoints for firms, challenges, and filters"
-		  )
-		)
+@OpenAPIDefinition(info = @Info(title = "Trade Post Firms API", version = "v1", description = "Endpoints for firms, challenges, and filters"))
 @SpringBootApplication
 @EnableAsync
 @EnableJpaAuditing

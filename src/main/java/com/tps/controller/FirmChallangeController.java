@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tps.dto.request.ChallengeRequest;
 import com.tps.dto.response.ApiResponse;
 import com.tps.dto.response.ChallengeResponse;
-import com.tps.service.ChallengeService;
+import com.tps.service.FirmChallengeService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @Validated
 public class FirmChallangeController { 
 
-    private final ChallengeService challengeService;
+    private final FirmChallengeService challengeService;
 
     
     @PostMapping

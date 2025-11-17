@@ -12,7 +12,7 @@ import org.hibernate.annotations.Immutable; // Marks the entity as read-only
 @Immutable
 @Table(name = "v_challenge_cards")
 @Data
-public class ChallengeCardView {
+public class ViewFirmChallenges {
 
     @Id
     @Column(name = "plan_id")

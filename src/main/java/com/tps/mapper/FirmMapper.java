@@ -25,7 +25,7 @@ import com.tps.dto.response.ReviewResponse;
 import com.tps.enums.FirmStatus;
 import com.tps.enums.LeverageProfile;
 import com.tps.exceptions.ResourceNotFoundException;
-import com.tps.model.ChallengeCardView;
+import com.tps.model.ViewFirmChallenges;
 import com.tps.model.DmnCountry;
 import com.tps.model.DmnTradingPlatform;
 import com.tps.model.FirmCard;
@@ -51,7 +51,7 @@ public class FirmMapper {
         return new FirmLiteDto(entity.getId(), entity.getName());
     }
 
-    public ChallengeCardDto toDto(ChallengeCardView view) {
+    public ChallengeCardDto toDto(ViewFirmChallenges view) {
         if (view == null) return null;
 
         PriceDto price = new PriceDto(view.getPriceAmount(), view.getPriceCurrency());
@@ -71,7 +71,7 @@ public class FirmMapper {
 
     // --- Entity -> DTO (Detailed GET) ---
 
-    public FirmResponse toDto(FirmCard entity, List<ChallengeCardView> challengeCards, List<ReviewResponse> reviews) {
+    public FirmResponse toDto(FirmCard entity, List<ViewFirmChallenges> challengeCards, List<ReviewResponse> reviews) {
         if (entity == null) return null;
 
         FirmResponse dto = new FirmResponse();
@@ -130,7 +130,7 @@ public class FirmMapper {
         }
 
         // Spreads & Commission
-        conditionsDto.setRawSpreads(entity.isRawSpreads());
+        conditionsDto.setRawSpreads(entity.getRawSpreads());
         conditionsDto.setCommissionPerLot(entity.getCommissionPerLot());
 
         // Leverages (group FirmLeverage rows into LeverageDto list)
@@ -172,9 +172,9 @@ public class FirmMapper {
         conditionsDto.setRestrictedCountries(new ArrayList<>(entity.getRestrictedCountries()));
 
         // IP / device rules
-        conditionsDto.setAllowMultipleDevices(entity.isAllowMultipleDevices());
-        conditionsDto.setRequireIpConsistency(entity.isRequireIpConsistency());
-        conditionsDto.setConsistencyRuleApplied(entity.isConsistencyRuleApplied());
+        conditionsDto.setAllowMultipleDevices(entity.getAllowMultipleDevices());
+        conditionsDto.setRequireIpConsistency(entity.getRequireIpConsistency());
+        conditionsDto.setConsistencyRuleApplied(entity.getConsistencyRuleApplied());
 
         // Scaling plan
         conditionsDto.setScalingCriteriaDays(entity.getScalingCriteriaDays());
@@ -184,7 +184,7 @@ public class FirmMapper {
 
         // Support
         conditionsDto.setSupportEmail(entity.getSupportEmail());
-        conditionsDto.setLiveChatAvailable(entity.isLiveChatAvailable());
+        conditionsDto.setLiveChatAvailable(entity.getLiveChatAvailable());
         conditionsDto.setDiscordUrl(entity.getDiscordUrl());
         conditionsDto.setSupportPhone(entity.getSupportPhone());
         
@@ -289,7 +289,7 @@ public class FirmMapper {
             }
 
             // Spreads & Commission
-            entity.setRawSpreads(conditions.isRawSpreads());
+            entity.setRawSpreads(conditions.getRawSpreads());
             entity.setCommissionPerLot(conditions.getCommissionPerLot());
 
             // Leverages -> create FirmLeverage entities
@@ -335,9 +335,9 @@ public class FirmMapper {
                 entity.setProhibitedStrategies(new HashSet<>());
             }
 
-            entity.setAllowMultipleDevices(conditions.isAllowMultipleDevices());
-            entity.setRequireIpConsistency(conditions.isRequireIpConsistency());
-            entity.setConsistencyRuleApplied(conditions.isConsistencyRuleApplied());
+            entity.setAllowMultipleDevices(conditions.getAllowMultipleDevices());
+            entity.setRequireIpConsistency(conditions.getRequireIpConsistency());
+            entity.setConsistencyRuleApplied(conditions.getConsistencyRuleApplied());
 
             entity.setScalingCriteriaDays(conditions.getScalingCriteriaDays());
             entity.setMaxAllocationAfterScaling(conditions.getMaxAllocationAfterScaling());
@@ -351,7 +351,7 @@ public class FirmMapper {
             }
 
             entity.setSupportEmail(conditions.getSupportEmail());
-            entity.setLiveChatAvailable(conditions.isLiveChatAvailable());
+            entity.setLiveChatAvailable(conditions.getLiveChatAvailable());
             entity.setDiscordUrl(conditions.getDiscordUrl());
             entity.setSupportPhone(conditions.getSupportPhone());
             if (conditions.getProfitSplitOption() != null) {
@@ -465,7 +465,7 @@ public class FirmMapper {
             }
 
             // Commission & spreads
-            existingEntity.setRawSpreads(conditions.isRawSpreads());
+            existingEntity.setRawSpreads(conditions.getRawSpreads());
             existingEntity.setCommissionPerLot(conditions.getCommissionPerLot());
 
             // Replace leverages: clear and add fresh
@@ -493,9 +493,9 @@ public class FirmMapper {
 
             existingEntity.setProhibitedStrategies(conditions.getProhibitedStrategies() != null ? new HashSet<>(conditions.getProhibitedStrategies()) : new HashSet<>());
 
-            existingEntity.setAllowMultipleDevices(conditions.isAllowMultipleDevices());
-            existingEntity.setRequireIpConsistency(conditions.isRequireIpConsistency());
-            existingEntity.setConsistencyRuleApplied(conditions.isConsistencyRuleApplied());
+            existingEntity.setAllowMultipleDevices(conditions.getAllowMultipleDevices());
+            existingEntity.setRequireIpConsistency(conditions.getRequireIpConsistency());
+            existingEntity.setConsistencyRuleApplied(conditions.getConsistencyRuleApplied());
 
             existingEntity.setScalingCriteriaDays(conditions.getScalingCriteriaDays());
             existingEntity.setMaxAllocationAfterScaling(conditions.getMaxAllocationAfterScaling());
@@ -505,7 +505,7 @@ public class FirmMapper {
             existingEntity.setRestrictedCountries(conditions.getRestrictedCountries() != null ? new HashSet<>(conditions.getRestrictedCountries()) : new HashSet<>());
 
             existingEntity.setSupportEmail(conditions.getSupportEmail());
-            existingEntity.setLiveChatAvailable(conditions.isLiveChatAvailable());
+            existingEntity.setLiveChatAvailable(conditions.getLiveChatAvailable());
             existingEntity.setDiscordUrl(conditions.getDiscordUrl());
             existingEntity.setSupportPhone(conditions.getSupportPhone());
         }

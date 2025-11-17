@@ -48,7 +48,7 @@ public class FirmCard {
     private Short foundedYear;
 
     @Column(name = "is_trusted", nullable = false)
-    private Boolean isTrusted = false;
+    private Boolean  isTrusted = false;
 
     @Column(name = "rating", length = 8)
     private String rating;
@@ -107,7 +107,7 @@ public class FirmCard {
     private String buyUrl;
 
     @Column(nullable = false)
-    private boolean updated;
+    private Boolean  updated;
 
     // --- AUDITING FIELDS ---
     @CreatedDate
@@ -146,7 +146,7 @@ public class FirmCard {
 
     /* Spreads & commission */
     @Column(name = "raw_spreads", nullable = false)
-    private boolean rawSpreads;
+    private Boolean  rawSpreads;
 
     @Column(name = "commission_per_lot", precision = 12, scale = 2)
     private BigDecimal commissionPerLot;
@@ -178,14 +178,14 @@ public class FirmCard {
 
     /* IP / device rules */
     @Column(name = "allow_multiple_devices")
-    private boolean allowMultipleDevices;
+    private Boolean  allowMultipleDevices;
 
     @Column(name = "require_ip_consistency")
-    private boolean requireIpConsistency;
+    private Boolean  requireIpConsistency;
 
     /* Consistency rule flag (true if applied) */
     @Column(name = "consistency_rule_applied")
-    private boolean consistencyRuleApplied;
+    private Boolean  consistencyRuleApplied;
 
     /* Scaling plan */
     @Column(name = "scaling_criteria_days")
@@ -211,7 +211,7 @@ public class FirmCard {
     private String supportEmail;
 
     @Column(name = "live_chat_available")
-    private boolean liveChatAvailable;
+    private Boolean  liveChatAvailable;
 
     @Column(name = "discord_url", length = 255)
     private String discordUrl;

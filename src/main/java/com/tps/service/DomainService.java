@@ -3,9 +3,11 @@ package com.tps.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tps.cache.CacheNames;
 import com.tps.dto.CountryDto;
 import com.tps.dto.CurrencyDto;
 import com.tps.dto.ChallengePhaseFullDto;
@@ -34,7 +36,7 @@ public class DomainService {
 
     private final CountryRepository countryRepository;
     private final RoleRepository roleRepository;
-    
+
     private final TradingPlatformRepository tradingPlatformRepository;
     private final InstrumentRepository instrumentRepository;
     private final TierRepository tierRepository;
@@ -43,70 +45,63 @@ public class DomainService {
     private final PayoutFrequencyRepository payoutFrequencyRepository;
     private final CurrencyRepository currencyRepository;
 
-
-    
+    @Cacheable(value = CacheNames.COUNTRIES, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<CountryDto> getAllCountries() {
         return countryRepository.findAll().stream()
                 .map(country -> new CountryDto(country.getCode(), country.getName()))
                 .collect(Collectors.toList());
     }
-    
-    
 
-    
+    @Cacheable(value = CacheNames.ROLES, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<RoleDto> getAllRoles() {
         return roleRepository.findAll().stream()
                 .map(role -> new RoleDto(role.getId(), role.getName()))
                 .collect(Collectors.toList());
     }
-    
-    // --- New Domain Data Methods (Using specific DTOs) ---
 
+    @Cacheable(value = CacheNames.TRADING_PLATFORMS, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<TradingPlatformDto> getAllTradingPlatforms() {
         return tradingPlatformRepository.findAll().stream()
-                // Mapped to new 2-argument constructor
-                .map(p -> new TradingPlatformDto(p.getCode(), p.getName())) 
+                .map(p -> new TradingPlatformDto(p.getCode(), p.getName()))
                 .collect(Collectors.toList());
     }
-    
+
+    @Cacheable(value = CacheNames.INSTRUMENTS, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<InstrumentDto> getAllInstruments() {
         return instrumentRepository.findAll().stream()
-                // Mapped to new 2-argument constructor
                 .map(i -> new InstrumentDto(i.getCode(), i.getName()))
                 .collect(Collectors.toList());
     }
-    
+
+    @Cacheable(value = CacheNames.TIERS, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<TierDto> getAllTiers() {
         return tierRepository.findAll().stream()
-                // Mapped to new 1-argument constructor
                 .map(t -> new TierDto(t.getName()))
                 .collect(Collectors.toList());
     }
-    
-    
-    
+
+    @Cacheable(value = CacheNames.CHALLENGE_PHASES, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<ChallengePhaseFullDto> getAllChallengePhases() {
-        // Mapped to new 2-argument constructor
-        return challengePhaseRepository.findAllByOrderByCodeAsc().stream() 
+        return challengePhaseRepository.findAllByOrderByCodeAsc().stream()
                .map(c -> new ChallengePhaseFullDto(c.getCode(), c.getLabel()))
                .collect(Collectors.toList());
-   }
-    
-    
+    }
+
+    @Cacheable(value = CacheNames.DRAWDOWN_TYPES, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<DrawdownTypeDto> getAllDrawdownTypes() {
         return drawdownTypeRepository.findAll().stream()
                 .map(d -> new DrawdownTypeDto(d.getId(), d.getCode(), d.getLabel(), d.getDescription()))
                 .collect(Collectors.toList());
     }
-    
+
+    @Cacheable(value = CacheNames.PAYOUT_FREQUENCIES, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<PayoutFrequencyDto> getAllPayoutFrequencies() {
         return payoutFrequencyRepository.findAll().stream()
                 .map(p -> new PayoutFrequencyDto(p.getId(), p.getCode(), p.getLabel(), p.getDescription()))
                 .collect(Collectors.toList());
     }
-    
-    
-    
+
+    @Cacheable(value = CacheNames.CURRENCIES, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<CurrencyDto> getAllCurrencies() {
         return currencyRepository.findAll().stream()
                 .map(c -> new CurrencyDto(c.getCode(), c.getName(), c.getSymbol()))
