@@ -86,6 +86,21 @@ public class FirmChallangeController {
                 .timestamp(System.currentTimeMillis())
                 .build());
     }
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getAllChallenges(
+            HttpServletRequest httpReq) {
+        
+        List<ChallengeResponse> challenge = challengeService.getAllChallenges();
+
+        return ResponseEntity.ok(ApiResponse.<List<ChallengeResponse>>builder() 
+                .success(true)
+                .message("All Challenges fetched successfully")
+                .data(challenge)
+                .status(HttpStatus.OK)
+                .path(httpReq.getRequestURI())
+                .timestamp(System.currentTimeMillis())
+                .build());
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ChallengeResponse>> update( 
