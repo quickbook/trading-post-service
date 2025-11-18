@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tps.cache.CacheNames;
-import com.tps.cache.events.FirmChangedEvent;
+import com.tps.cache.events.DataChangedEvent;
 import com.tps.dto.request.ChallengeRequest;
 import com.tps.dto.response.ChallengeResponse;
+import com.tps.enums.EventChangeType;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.ChallengeMapper;
 import com.tps.model.FirmChallenge;
@@ -48,7 +49,7 @@ public class FirmChallengeService {
 
         // publish event for cache invalidation AFTER commit
         try {
-            eventPublisher.publishEvent(new FirmChangedEvent(request.getFirmId()));
+            eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.CHALLENGE_CREATED, request.getFirmId(),null,savedEntity.getId()));
             log.debug("Published FirmChangedEvent for firmId={} after creating challenge id={}", request.getFirmId(), savedEntity.getId());
         } catch (Exception ex) {
             log.warn("Failed to publish FirmChangedEvent for firmId={}", request.getFirmId(), ex);
@@ -109,7 +110,7 @@ public class FirmChallengeService {
 
         // publish event so caches for this firm get invalidated AFTER_COMMIT
         try {
-            eventPublisher.publishEvent(new FirmChangedEvent(request.getFirmId()));
+        	 eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.CHALLENGE_UPDATED, request.getFirmId(),null,savedEntity.getId()));
             log.debug("Published FirmChangedEvent for firmId={} after updating challenge id={}", request.getFirmId(), savedEntity.getId());
         } catch (Exception ex) {
             log.warn("Failed to publish FirmChangedEvent for firmId={}", request.getFirmId(), ex);
@@ -131,7 +132,7 @@ public class FirmChallengeService {
         // publish event for cache invalidation AFTER_COMMIT
         if (firmId != null) {
             try {
-                eventPublisher.publishEvent(new FirmChangedEvent(firmId));
+            	 eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.CHALLENGE_DELETED, null,null,challengeId));
                 log.debug("Published FirmChangedEvent for firmId={} after deleting challenge id={}", firmId, challengeId);
             } catch (Exception ex) {
                 log.warn("Failed to publish FirmChangedEvent for firmId={}", firmId, ex);

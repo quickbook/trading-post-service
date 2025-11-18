@@ -6,35 +6,34 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
 
 import com.tps.cache.CacheNames;
-import com.tps.cache.events.FirmChangedEvent;
+import com.tps.cache.events.DataChangedEvent;
 import com.tps.dto.FirmLiteDto;
 import com.tps.dto.FirmQuery;
 import com.tps.dto.request.FirmRequest;
+import com.tps.dto.response.ChallengeResponse;
 import com.tps.dto.response.FirmResponse;
 import com.tps.dto.response.ReviewResponse;
+import com.tps.enums.EventChangeType;
 import com.tps.enums.FirmStatus;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmMapper;
-import com.tps.model.ViewFirmChallenges; // NEW: View Entity
 import com.tps.model.FirmCard;
-import com.tps.repository.ChallengeCardViewRepository; // NEW: View Repository
 import com.tps.repository.FirmRepository;
 
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 @Service
@@ -44,7 +43,7 @@ public class FirmService {
 
     private final FirmRepository firmRepository;
     private final FirmMapper firmMapper;
-    private final ChallengeCardViewRepository challengeCardViewRepository;
+    private final FirmChallengeService firmChallengeService;
     private final FirmReviewService firmReviewService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -88,10 +87,10 @@ public class FirmService {
                 });
 
         // Fetch related challenge cards from the view
-        List<ViewFirmChallenges> challengeCards = challengeCardViewRepository.findByFirmId(id);
+        List<ChallengeResponse> challengeCards = firmChallengeService.getByFirmId(id);
         List<ReviewResponse> reviews = firmReviewService.getReviewsForFirm(id);
 
-        return firmMapper.toDto(entity, challengeCards, reviews);
+        return firmMapper.toDto(entity, challengeCards, reviews,true);
     }
 
     // --- WRITE methods: publish event and persist ---
@@ -113,7 +112,7 @@ public class FirmService {
         log.info("Successfully created firm with ID: {}", savedEntity.getId());
 
         // Publish event after saving — listener will evict caches AFTER commit
-        eventPublisher.publishEvent(new FirmChangedEvent(savedEntity.getId()));
+        eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.FIRM_CREATED, savedEntity.getId(),null,null));
 
         return getById(savedEntity.getId());
     }
@@ -144,7 +143,7 @@ public class FirmService {
         log.info("Successfully updated firm with ID: {}", id);
 
         // publish event to evict caches after commit
-        eventPublisher.publishEvent(new FirmChangedEvent(saved.getId()));
+        eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.FIRM_UPDATED, saved.getId(),null,null));
 
         return getById(id);
     }
@@ -160,7 +159,7 @@ public class FirmService {
         log.info("Successfully deleted firm with ID: {}", id);
 
         // publish event so caches are evicted after commit
-        eventPublisher.publishEvent(new FirmChangedEvent(id));
+        eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.FIRM_DELETED, id,null,null));
     }
 
     // --- Search / find (paged): leave uncached or cache carefully with keys ---
@@ -219,7 +218,7 @@ public class FirmService {
         log.info("Successfully patched simple fields for firm with ID: {}", id);
 
         // Evict caches after successful commit
-        eventPublisher.publishEvent(new com.tps.cache.events.FirmChangedEvent(id));
+        eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.FIRM_UPDATED, existingEntity.getId(),null,null));
 
         // return full resource
         return getById(id);

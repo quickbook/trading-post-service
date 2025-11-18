@@ -11,26 +11,24 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tps.dto.AboutDto;
-import com.tps.dto.ChallengeCardDto;
+import com.tps.dto.AboutDto; 
 import com.tps.dto.FirmLiteDto;
 import com.tps.dto.InstrumentLeverageDto;
-import com.tps.dto.LeverageDto;
-import com.tps.dto.PriceDto;
+import com.tps.dto.LeverageDto; 
 import com.tps.dto.ProfitSplitOptionDto;
 import com.tps.dto.TradingConditionsDto;
 import com.tps.dto.request.FirmRequest;
+import com.tps.dto.response.ChallengeResponse;
 import com.tps.dto.response.FirmResponse;
 import com.tps.dto.response.ReviewResponse;
 import com.tps.enums.FirmStatus;
 import com.tps.enums.LeverageProfile;
 import com.tps.exceptions.ResourceNotFoundException;
-import com.tps.model.ViewFirmChallenges;
 import com.tps.model.DmnCountry;
 import com.tps.model.DmnTradingPlatform;
 import com.tps.model.FirmCard;
 import com.tps.model.FirmLeverage;
-import com.tps.model.FirmPlatform;
+import com.tps.model.FirmPlatform; 
 import com.tps.repository.CountryRepository;
 import com.tps.repository.TradingPlatformRepository;
 
@@ -50,28 +48,11 @@ public class FirmMapper {
         if (entity == null) return null;
         return new FirmLiteDto(entity.getId(), entity.getName());
     }
-
-    public ChallengeCardDto toDto(ViewFirmChallenges view) {
-        if (view == null) return null;
-
-        PriceDto price = new PriceDto(view.getPriceAmount(), view.getPriceCurrency());
-
-        return new ChallengeCardDto(
-            view.getPlanId(),
-            view.getTierName(),
-            view.getPhaseLabel(),
-            view.getProfitTargetPct(),
-            view.getDailyLossPct(),
-            view.getMaxLossPct(),
-            view.getAccountSizeUsd(),
-            price,
-            view.getBuyUrl()
-        );
-    }
+ 
 
     // --- Entity -> DTO (Detailed GET) ---
 
-    public FirmResponse toDto(FirmCard entity, List<ViewFirmChallenges> challengeCards, List<ReviewResponse> reviews) {
+    public FirmResponse toDto(FirmCard entity, List<ChallengeResponse> challengeCards, List<ReviewResponse> reviews,boolean includeChallengesAndReviews) {
         if (entity == null) return null;
 
         FirmResponse dto = new FirmResponse();
@@ -128,7 +109,7 @@ public class FirmMapper {
         } else {
             conditionsDto.setAvailableAssets(new ArrayList<>());
         }
-
+        if(includeChallengesAndReviews) {
         // Spreads & Commission
         conditionsDto.setRawSpreads(entity.getRawSpreads());
         conditionsDto.setCommissionPerLot(entity.getCommissionPerLot());
@@ -200,7 +181,7 @@ public class FirmMapper {
         }
 
 
-        dto.setTradingConditions(conditionsDto);
+       
 
         // 3. About
         AboutDto aboutDto = new AboutDto();
@@ -218,17 +199,16 @@ public class FirmMapper {
         dto.setAbout(aboutDto);
 
         // 4. Challenges & Reviews
-        dto.setChallenges(challengeCards.stream()
-                .map(this::toDto)
-                .collect(Collectors.toList()));
+        dto.setChallenges(challengeCards);
         dto.setReviews(reviews);
-
+        }
+        dto.setTradingConditions(conditionsDto);
         return dto;
     }
 
     // Simple GET
     public FirmResponse toDto(FirmCard entity) {
-        return toDto(entity, new ArrayList<>(), new ArrayList<>());
+        return toDto(entity, new ArrayList<>(), new ArrayList<>(),false);
     }
 
     // --- DTO -> Entity (For POST/PUT operations) ---

@@ -86,7 +86,7 @@ public class FirmChallangeController {
                 .timestamp(System.currentTimeMillis())
                 .build());
     }
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<ApiResponse<List<ChallengeResponse>>> getAllChallenges(
             HttpServletRequest httpReq) {
         

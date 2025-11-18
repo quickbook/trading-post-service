@@ -10,9 +10,10 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 
 import com.tps.cache.CacheNames;
-import com.tps.cache.events.FirmChangedEvent;
+import com.tps.cache.events.DataChangedEvent;
 import com.tps.dto.request.ReviewRequest;
 import com.tps.dto.response.ReviewResponse;
+import com.tps.enums.EventChangeType;
 import com.tps.exceptions.ResourceNotFoundException;
 import com.tps.mapper.FirmReviewMapper;
 import com.tps.model.FirmCard;
@@ -63,7 +64,7 @@ public class FirmReviewService {
 
         // publish event so listener can evict caches AFTER the transaction commits
         try {
-            eventPublisher.publishEvent(new FirmChangedEvent(firmId));
+        	 eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.REVIEW_CREATED, firmId,savedReview.getId(),null));
             log.debug("Published FirmChangedEvent for firmId={}", firmId);
         } catch (Exception ex) {
             log.warn("Failed to publish FirmChangedEvent for firmId={}. This will not affect the saved review.", firmId, ex);
@@ -131,7 +132,7 @@ public class FirmReviewService {
         Long firmId = review.getFirm() != null ? review.getFirm().getId() : null;
         if (firmId != null) {
             try {
-                eventPublisher.publishEvent(new FirmChangedEvent(firmId));
+            	 eventPublisher.publishEvent(new DataChangedEvent(EventChangeType.REVIEW_DELETED, firmId,reviewId,null));
                 log.debug("Published FirmChangedEvent for firmId={} after deleting reviewId={}", firmId, reviewId);
             } catch (Exception ex) {
                 log.warn("Failed to publish FirmChangedEvent for firmId={} after deleting reviewId={}", firmId, reviewId, ex);

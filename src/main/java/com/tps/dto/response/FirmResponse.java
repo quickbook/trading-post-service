@@ -28,7 +28,7 @@ public class FirmResponse {
 	 private Boolean isTrusted;	
 	 private TradingConditionsDto tradingConditions;
 	 private AboutDto about;
-     private List<ChallengeCardDto> challenges;
+     private List<ChallengeResponse> challenges;
      private List<ReviewResponse> reviews;
 	 
 

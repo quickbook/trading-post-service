@@ -13,6 +13,10 @@ import lombok.NoArgsConstructor;
 public class ChallengeResponse {
 	
 	private Long id;
+	private Long firmId;
+	private String firmName;
+	private String logo;
+	private String buyUrl;
     private String tier;
     private String phase;
     private BigDecimal profitTargetPct;

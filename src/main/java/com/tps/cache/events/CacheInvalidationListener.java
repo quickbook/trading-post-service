@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.tps.cache.CacheNames;
+import com.tps.enums.EventChangeType;
 
 @Component
 public class CacheInvalidationListener {
@@ -24,68 +24,79 @@ public class CacheInvalidationListener {
     /**
      * Invoked AFTER transaction commit to ensure we only evict if the DB write succeeded.
      */
+
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onFirmChanged(FirmChangedEvent event) {
-        Long id = event.getFirmId();
-        log.debug("Received FirmChangedEvent for id={}", id);
+    public void onDomainChanged(DataChangedEvent event) {
 
-        try {
-            // Firms caches
-            evictCacheByKey(CacheNames.FIRMS_BY_ID, id);
-            clearCache(CacheNames.FIRMS_LIST);
-            clearCache(CacheNames.FIRMS_FIND_LIST);
-            clearCache(CacheNames.FIRMS_LITE);
+        EventChangeType type = event.getType();
+        Long firmId = event.getFirmId();
+        Long reviewId = event.getReviewId();
+        Long challengeId = event.getChallengeId();
 
-            // Challenges caches
-            evictCacheByKey(CacheNames.CHALLENGES_BY_FIRM, id);
-            clearCache(CacheNames.CHALLENGES_ALL);
-            // We don't know a specific challengeId here, so clear the per-id cache to be safe
-            clearCache(CacheNames.CHALLENGES_BY_ID);
+        log.debug("DomainChangedEvent: {}", event.getType());
 
-            // Reviews caches
-            evictCacheByKey(CacheNames.REVIEWS_BY_FIRM, id);
-            clearCache(CacheNames.REVIEWS_ALL);
-            // We don't have reviewId in FirmChangedEvent — clearing review-by-id cache is safer than evicting with firmId
-            clearCache(CacheNames.REVIEWS_BY_ID);
+        switch (type) {
 
-            // Add more domain caches here as needed (payouts, leverages, etc.)
-        } catch (Exception ex) {
-            // Do not rethrow — invalidation should not break the main flow
-            log.error("Error during cache invalidation for firm id=" + id, ex);
+            /* =======================
+               FIRM CHANGES
+            ======================== */
+            case FIRM_CREATED:
+            case FIRM_UPDATED:
+            case FIRM_DELETED:
+                evictFirmCaches(firmId);
+                break;
+
+            /* =======================
+               REVIEW CHANGES
+            ======================== */
+            case REVIEW_CREATED:
+            case REVIEW_UPDATED:
+            case REVIEW_DELETED:
+                evictReviewCaches(firmId, reviewId);
+                break;
+
+            /* =======================
+               CHALLENGE CHANGES
+            ======================== */
+            case CHALLENGE_CREATED:
+            case CHALLENGE_UPDATED:
+            case CHALLENGE_DELETED:
+                evictChallengeCaches(firmId, challengeId);
+                break;
         }
     }
 
-    // --- Helper utilities ---
+    /* --------------------
+       Helper methods
+    -------------------- */
 
-    private void clearCache(String cacheName) {
-        try {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                cache.clear();
-                log.debug("Cleared cache {}", cacheName);
-            } else {
-                log.trace("Cache '{}' not found (clear skipped)", cacheName);
-            }
-        } catch (Exception ex) {
-            log.warn("Failed to clear cache '{}': {}", cacheName, ex.getMessage(), ex);
-        }
+    private void evictFirmCaches(Long firmId) {
+        evict("FIRMS_BY_ID", firmId);
+        clear("FIRMS_LIST");
+        clear("FIRMS_LITE");
     }
 
-    private void evictCacheByKey(String cacheName, Object key) {
-        if (key == null) {
-            log.trace("Key is null; skipping evict for cache '{}'", cacheName);
-            return;
-        }
-        try {
-            Cache cache = cacheManager.getCache(cacheName);
-            if (cache != null) {
-                cache.evict(key);
-                log.debug("Evicted {}[{}]", cacheName, key);
-            } else {
-                log.trace("Cache '{}' not found (evict skipped)", cacheName);
-            }
-        } catch (Exception ex) {
-            log.warn("Failed to evict key '{}' from cache '{}': {}", key, cacheName, ex.getMessage(), ex);
-        }
+    private void evictReviewCaches(Long firmId, Long reviewId) {
+        evict("REVIEWS_BY_ID", reviewId);
+        evict("REVIEWS_BY_FIRM", firmId);
+        clear("REVIEWS_ALL");
     }
+
+    private void evictChallengeCaches(Long firmId, Long challengeId) {
+        evict("CHALLENGES_BY_ID", challengeId);
+        evict("CHALLENGES_BY_FIRM", firmId);
+        clear("CHALLENGES_ALL");
+    }
+
+    private void clear(String cacheName) {
+        Cache c = cacheManager.getCache(cacheName);
+        if (c != null) c.clear();
+    }
+
+    private void evict(String cacheName, Object key) {
+        if (key == null) return;
+        Cache c = cacheManager.getCache(cacheName);
+        if (c != null) c.evict(key);
+    }
+
 }

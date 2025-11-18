@@ -32,6 +32,10 @@ public class ChallengeMapper {
 
         return new ChallengeResponse(
             entity.getId(),
+            entity.getFirmCard().getId(),
+            entity.getFirmCard().getName(),
+            entity.getFirmCard().getLogo(),
+            entity.getFirmCard().getBuyUrl(),
             entity.getTier().getName(),       
             entity.getPhase().getLabel(),        
             entity.getProfitTargetPct(),
