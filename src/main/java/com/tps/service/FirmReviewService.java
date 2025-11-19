@@ -85,7 +85,7 @@ public class FirmReviewService {
             throw new ResourceNotFoundException("Firm not found with id: " + firmId);
         }
 
-        return reviewRepository.findByFirmIdAndIsDeletedFalse(firmId)
+        return reviewRepository.findByFirmIdAndIsDeletedFalseOrderByCreatedAtDesc(firmId)
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
@@ -97,7 +97,7 @@ public class FirmReviewService {
     @Transactional(readOnly = true)
     @Cacheable(value = CacheNames.REVIEWS_ALL, key = "'all'", unless = "#result == null || #result.size() == 0")
     public List<ReviewResponse> getAllActiveReviews() {
-        return reviewRepository.findByIsDeletedFalse()
+        return reviewRepository.findByIsDeletedFalseOrderByCreatedAtDesc()
                 .stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());

@@ -29,7 +29,7 @@ public interface FirmRepository extends JpaRepository<FirmCard, Long>, JpaSpecif
 
 	Optional<FirmCard> findByNameAndIdNot(String name, Long id);
 
-    List<FirmCard> findByFirmStatus(FirmStatus firmStatus);
-    
+	List<FirmCard> findByFirmStatusOrderByNameAsc(FirmStatus firmStatus);
+	List<FirmCard> findAllByOrderByNameAsc();
  
 }

@@ -6,5 +6,4 @@ import com.tps.model.FirmChallenge;
 
 public interface FirmChallengeRepository extends JpaRepository<FirmChallenge, Long> {
 
-    List<FirmChallenge> findByFirmCardId(Long firmId);
-}
+	List<FirmChallenge> findByFirmCardIdOrderByProfitTargetPctDescAccountSizeUsdDescPriceAmountDesc(Long firmId);}

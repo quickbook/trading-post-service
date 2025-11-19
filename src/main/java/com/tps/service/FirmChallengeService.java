@@ -74,8 +74,7 @@ public class FirmChallengeService {
             throw new ResourceNotFoundException("Firm not found with id: " + firmId);
         }
 
-        List<FirmChallenge> entities = challengeRepository.findByFirmCardId(firmId);
-
+        List<FirmChallenge> entities = challengeRepository.findByFirmCardIdOrderByProfitTargetPctDescAccountSizeUsdDescPriceAmountDesc(firmId);
         return entities.stream()
             .map(challengeMapper::toResponseDto)
             .collect(Collectors.toList());

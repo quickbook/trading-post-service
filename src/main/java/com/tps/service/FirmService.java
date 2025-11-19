@@ -54,8 +54,8 @@ public class FirmService {
     public List<FirmResponse> getAll() {
         try {
             log.info("Fetching all active firms from the database.");
-            List<FirmCard> firmEntities = firmRepository.findByFirmStatus(FirmStatus.ACTIVE);
-
+            List<FirmCard> firmEntities = firmRepository.findByFirmStatusOrderByNameAsc(FirmStatus.ACTIVE);
+            
             List<FirmResponse> firmDtos = firmEntities.stream()
                     .map(firmMapper::toDto) // Simple mapper call
                     .collect(Collectors.toList());
@@ -71,7 +71,8 @@ public class FirmService {
     @Transactional(readOnly = true)
     @Cacheable(value = CacheNames.FIRMS_LITE, unless = "#result == null")
     public List<FirmLiteDto> getAllFirmIdsAndNames() {
-        return firmRepository.findAll().stream()
+    	log.info("CACHE MISS: Executing DB query for FIRMS_LITE.");
+    	return firmRepository.findAllByOrderByNameAsc().stream()
                 .map(firmMapper::toLiteDto)
                 .collect(Collectors.toList());
     }
@@ -80,6 +81,7 @@ public class FirmService {
     @Cacheable(value = CacheNames.FIRMS_BY_ID, key = "#id", unless = "#result == null")
     public FirmResponse getById(Long id) {
         log.info("Fetching firm by ID: {}", id);
+        log.info("CACHE MISS: Fetching firm by ID: {}", id);
         FirmCard entity = firmRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> {
                     log.warn("Firm with ID {} not found.", id);

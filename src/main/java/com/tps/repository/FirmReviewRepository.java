@@ -11,11 +11,9 @@ public interface FirmReviewRepository extends JpaRepository<FirmReview,Long>{
 	/**
      * Finds all active reviews for a specific firm.
      */
-    List<FirmReview> findByFirmIdAndIsDeletedFalse(Long firmId);
-
+	List<FirmReview> findByFirmIdAndIsDeletedFalseOrderByCreatedAtDesc(Long firmId);
     /**
      * Finds all active reviews (not deleted).
      */
-    List<FirmReview> findByIsDeletedFalse();
-
+	List<FirmReview> findByIsDeletedFalseOrderByCreatedAtDesc();
 }

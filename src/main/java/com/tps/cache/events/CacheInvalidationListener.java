@@ -33,7 +33,7 @@ public class CacheInvalidationListener {
         Long reviewId = event.getReviewId();
         Long challengeId = event.getChallengeId();
 
-        log.debug("DomainChangedEvent: {}", event.getType());
+        log.info("DomainChangedEvent: {}", event.getType());
 
         switch (type) {
 
