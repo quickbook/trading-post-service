@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TradingPlatformDto {
+	private Long id;
     private String code;
     private String name;
 }

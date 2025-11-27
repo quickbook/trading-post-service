@@ -62,28 +62,28 @@ public class DomainService {
     @Cacheable(value = CacheNames.TRADING_PLATFORMS, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<TradingPlatformDto> getAllTradingPlatforms() {
         return tradingPlatformRepository.findAll().stream()
-                .map(p -> new TradingPlatformDto(p.getCode(), p.getName()))
+                .map(p -> new TradingPlatformDto(p.getId(),p.getCode(), p.getName()))
                 .collect(Collectors.toList());
     }
 
     @Cacheable(value = CacheNames.INSTRUMENTS, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<InstrumentDto> getAllInstruments() {
         return instrumentRepository.findAll().stream()
-                .map(i -> new InstrumentDto(i.getCode(), i.getName()))
+                .map(i -> new InstrumentDto(i.getId(),i.getCode(), i.getName()))
                 .collect(Collectors.toList());
     }
 
     @Cacheable(value = CacheNames.TIERS, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<TierDto> getAllTiers() {
         return tierRepository.findAll().stream()
-                .map(t -> new TierDto(t.getName()))
+                .map(t -> new TierDto(t.getId(),t.getName()))
                 .collect(Collectors.toList());
     }
 
     @Cacheable(value = CacheNames.CHALLENGE_PHASES, key = "'all'", unless = "#result == null || #result.isEmpty()")
     public List<ChallengePhaseFullDto> getAllChallengePhases() {
         return challengePhaseRepository.findAllByOrderByCodeAsc().stream()
-               .map(c -> new ChallengePhaseFullDto(c.getCode(), c.getLabel()))
+               .map(c -> new ChallengePhaseFullDto(c.getId(),c.getCode(), c.getLabel()))
                .collect(Collectors.toList());
     }
 

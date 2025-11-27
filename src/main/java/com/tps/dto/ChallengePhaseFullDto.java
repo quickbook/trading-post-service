@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChallengePhaseFullDto {
+	private Long id;
     private String code;
     private String label;
 }
