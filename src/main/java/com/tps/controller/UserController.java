@@ -2,6 +2,7 @@ package com.tps.controller;
 
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -19,6 +20,7 @@ import com.tps.dto.response.ApiResponse;
 import com.tps.dto.response.LoginResponse;
 import com.tps.dto.response.RegisterResponse;
 import com.tps.dto.response.UserResponse;
+import com.tps.enums.RoleEnum;
 import com.tps.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +34,9 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 	
 	private final UserService userService;
+	
+	@Value("${app.root.tokenId}")
+	private String rootTokenId;
 	
 	
 	@PostMapping("/login")
@@ -64,7 +69,7 @@ public class UserController {
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<RegisterResponse>> registerUser(@Valid @RequestBody RegisterRequest registerRequest,HttpServletRequest request) {
 	    
-	    RegisterResponse savedUser = userService.userRegister(registerRequest);
+	    RegisterResponse savedUser = userService.userRegister(registerRequest,RoleEnum.USER.name());
 
 	    ApiResponse<RegisterResponse> response = ApiResponse.<RegisterResponse>builder()
 	            .success(true)
@@ -78,6 +83,7 @@ public class UserController {
 	    return ResponseEntity.status(HttpStatus.CREATED).body(response);	
 	  }
 	
+	/* Endpoint to update user details */
 	@PutMapping("/{userName}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable String userName,
@@ -97,4 +103,53 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+	@PostMapping("/createAdminUser")
+	public ResponseEntity<ApiResponse<RegisterResponse>> createuser(@Valid @RequestBody RegisterRequest registerRequest,HttpServletRequest request) {
+	    
+	    RegisterResponse savedUser = userService.userRegister(registerRequest,RoleEnum.ADMIN.name());
+
+	    ApiResponse<RegisterResponse> response = ApiResponse.<RegisterResponse>builder()
+	            .success(true)
+	            .message("Admin User created successfully") 
+	            .data(savedUser) 
+	            .status(HttpStatus.CREATED) 
+	            .path(request.getRequestURI())
+	            .timestamp(System.currentTimeMillis())
+	            .build();
+
+	    return ResponseEntity.status(HttpStatus.CREATED).body(response);	
+	  }
+	
+	@PostMapping("/createRootUser")
+	public ResponseEntity<ApiResponse<RegisterResponse>> createRootUser(@Valid @RequestBody RegisterRequest registerRequest,HttpServletRequest request) {
+	    
+		 // Read tokenId from request header
+	    String tokenId = request.getHeader("tokenId");
+
+	    // Validate token
+	    if (tokenId == null || tokenId.isEmpty() || !tokenId.equals(rootTokenId)) {
+	        ApiResponse<RegisterResponse> errorResponse = ApiResponse.<RegisterResponse>builder()
+	                .success(false)
+	                .message("Invalid or missing tokenId")
+	                .status(HttpStatus.UNAUTHORIZED)
+	                .path(request.getRequestURI())
+	                .timestamp(System.currentTimeMillis())
+	                .build();
+
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+	    }
+	    
+	    RegisterResponse savedUser = userService.userRegister(registerRequest,RoleEnum.ROOT.name());
+
+	    ApiResponse<RegisterResponse> response = ApiResponse.<RegisterResponse>builder()
+	            .success(true)
+	            .message("Root User created successfully") 
+	            .data(savedUser) 
+	            .status(HttpStatus.CREATED) 
+	            .path(request.getRequestURI())
+	            .timestamp(System.currentTimeMillis())
+	            .build();
+
+	    return ResponseEntity.status(HttpStatus.CREATED).body(response);	
+	  }
 }

@@ -66,7 +66,7 @@ public class UserService {
             );
 	}
 
-	public RegisterResponse userRegister(@Valid RegisterRequest registerRequest) {
+	public RegisterResponse userRegister(@Valid RegisterRequest registerRequest,String roleName) {
 
 		if (userRepository.findByUserName(registerRequest.getUserName()).isPresent()) {
 			throw new DuplicateResourceException("Username  is already taken!");
@@ -100,7 +100,7 @@ public class UserService {
 		user.setStateName(registerRequest.getStateName());
 
 		// Defualt Role is USER
-		Role userRole = roleRepository.findByName("USER")
+		Role userRole = roleRepository.findByName(roleName)
 				.orElseThrow(() -> new RuntimeException("Error: Default role not found."));
 		user.setRole(userRole);
 
