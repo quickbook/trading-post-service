@@ -5,4 +5,5 @@ public enum InstrumentType {
     INDICES,
     COMMODITIES,
     CRYPTO
+
 }

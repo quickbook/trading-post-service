@@ -43,6 +43,9 @@ public class FirmRequest {
 			)
 	 private String firmPageURL;
 	 
+	 private String buyUrl;
+
+	 
 	 @Size(max = 50, message = "Firm type cannot exceed 50 characters")
 	 private String firmType;
 	 
@@ -55,6 +58,8 @@ public class FirmRequest {
 			)
 	 private String countryCode;
 	 private String description;
+
+
 	 
 	 @NotNull(message = "Trusted field must be specified")
 	 private Boolean isTrusted; 

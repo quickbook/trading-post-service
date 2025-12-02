@@ -74,7 +74,7 @@ public class UserController {
 	    ApiResponse<RegisterResponse> response = ApiResponse.<RegisterResponse>builder()
 	            .success(true)
 	            .message("User registered successfully") 
-	            .data(savedUser) 
+	            .data(savedUser)
 	            .status(HttpStatus.CREATED) 
 	            .path(request.getRequestURI())
 	            .timestamp(System.currentTimeMillis())

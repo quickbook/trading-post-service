@@ -449,7 +449,7 @@ public class FirmMapper {
             existingEntity.setCommissionPerLot(conditions.getCommissionPerLot());
 
             // Replace leverages: clear and add fresh
-            existingEntity.getLeverages().clear();
+        /*     existingEntity.getLeverages().clear();
             if (conditions.getLeverages() != null) {
                 Set<FirmLeverage> newLeverages = conditions.getLeverages().stream()
                         .flatMap(ld -> ld.getInstrumentLeverages().stream().map(il -> {
@@ -463,6 +463,10 @@ public class FirmMapper {
                         .collect(Collectors.toSet());
                 existingEntity.getLeverages().addAll(newLeverages);
             }
+            
+         */    
+            updateLeverages(existingEntity, conditions.getLeverages());
+
 
             // Payouts/frequencies
             existingEntity.setPayoutMethods(conditions.getPayoutMethods() != null ? new HashSet<>(conditions.getPayoutMethods()) : new HashSet<>());
@@ -491,7 +495,54 @@ public class FirmMapper {
         }
     }
 
-    // Update Platform Collection
+    private void updateLeverages(FirmCard existingEntity, List<LeverageDto> incomingLeverages) {
+    	if (incomingLeverages == null) {
+            existingEntity.getLeverages().clear();
+            return;
+        }
+    	
+    	Map<String, FirmLeverage> existingMap = existingEntity.getLeverages().stream()
+                .collect(Collectors.toMap(
+                    fl -> fl.getProfile().name() + "_" + fl.getInstrument().name(),
+                    fl -> fl
+                ));
+    	
+    	Set<FirmLeverage> mergedLeverages = new HashSet<>();
+        Set<String> keysToKeep = new HashSet<>();
+        
+        incomingLeverages.stream()
+        .flatMap(ld -> {
+            LeverageProfile profile = ld.getProfile();
+            return ld.getInstrumentLeverages().stream().map(il -> {
+                String key = profile.name() + "_" + il.getInstrument().name();
+                keysToKeep.add(key);
+                
+                FirmLeverage fl;
+                if (existingMap.containsKey(key)) {
+                    // UPDATE: Use the existing entity and update its factor.
+                    fl = existingMap.get(key);
+                    fl.setLeverageFactor(il.getLeverageFactor());
+                } else {
+                    // CREATE: Create a new entity (must link firmCard here)
+                    fl = new FirmLeverage();
+                    fl.setFirmCard(existingEntity);
+                    fl.setProfile(profile);
+                    fl.setInstrument(il.getInstrument());
+                    fl.setLeverageFactor(il.getLeverageFactor());
+                }
+                return fl;
+            });
+        })
+        .forEach(mergedLeverages::add);
+        
+    existingEntity.getLeverages().clear();
+    
+    existingEntity.getLeverages().addAll(mergedLeverages);
+
+	}
+
+
+	// Update Platform Collection
     public void updatePlatformCollection(FirmCard existingEntity, FirmRequest firmDto) {
         if (existingEntity.getPlatforms() != null) {
             existingEntity.getPlatforms().clear();

@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LeverageDto {
+	
+	private Long id;
 
     @NotNull(message = "Leverage profile is required")
     private LeverageProfile profile;

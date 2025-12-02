@@ -13,7 +13,8 @@ import java.util.Map;
 @AllArgsConstructor
 public class ErrorDetails {
  private String errorCode;           // e.g. VALIDATION_FAILED, ENTITY_NOT_FOUND, SERVER_ERROR
- private String errorMessage;        // human-readable error message
+ private String errorMessage; 
+ // human-readable error message
  private Map<String, String> fieldErrors; // validation field -> message (optional)
  private String exception;           // optional: exception class (e.g., ConstraintViolationException)
 }
