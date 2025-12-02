@@ -73,13 +73,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/reviews/**").authenticated()
                
  
-                .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/firms/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/reviews/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/challenges/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/reviews/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/challenges/**").hasRole("ADMIN")
                 
-                .requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/firms/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/reviews/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/challenges/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/reviews/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/tradingpost/api/v1/challenges/**").hasRole("ADMIN")
                 
                 .requestMatchers(HttpMethod.PATCH, "/tradingpost/api/v1/firms/**").authenticated()
                 .requestMatchers(HttpMethod.PATCH, "/tradingpost/api/v1/reviews/**").authenticated()
