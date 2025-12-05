@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "firms")
 @Data
-@EqualsAndHashCode(exclude = {"platforms", "assets", "leverages"})
+@EqualsAndHashCode(exclude = {"platforms", "assets", "leverages", "reviews", "challenges"})
 @EntityListeners(AuditingEntityListener.class)
 public class FirmCard {
 
@@ -222,6 +222,12 @@ public class FirmCard {
     @Column(name = "profit_split_option", columnDefinition = "JSON")
     private String profitSplitOptionJson;
 
+    @OneToMany(mappedBy = "firm", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<FirmReview> reviews = new HashSet<>();
+    
+    @OneToMany(mappedBy = "firmCard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<FirmChallenge> challenges = new HashSet<>();
+    
     
     // NOTE: The new OneToMany relationship for AccountPlan will be added here later.
 }
