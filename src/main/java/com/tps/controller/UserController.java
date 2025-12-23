@@ -2,10 +2,15 @@ package com.tps.controller;
 
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -152,4 +157,31 @@ public class UserController {
 
 	    return ResponseEntity.status(HttpStatus.CREATED).body(response);	
 	  }
+	
+	@GetMapping("/all")
+	public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers(
+	        Authentication authentication, 
+	        HttpServletRequest request) {
+	    
+	    // Extract role from the token (provided by JwtAuthFilter)
+	    // Note: Roles in Spring Security are prefixed with "ROLE_"
+	    String roleName = authentication.getAuthorities().stream()
+	            .map(GrantedAuthority::getAuthority)
+	            .map(r -> r.replace("ROLE_", ""))
+	            .findFirst()
+	            .orElse("USER");
+
+	    List<UserResponse> users = userService.getAllUsersByRole(roleName);
+
+	    return ResponseEntity.ok(
+	        ApiResponse.<List<UserResponse>>builder()
+	            .success(true)
+	            .message("User details fetched based on " + roleName + " privileges")
+	            .data(users)
+	            .status(HttpStatus.OK)
+	            .path(request.getRequestURI())
+	            .timestamp(System.currentTimeMillis())
+	            .build()
+	    );
+	}
 }

@@ -59,6 +59,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/whatsapp/**").permitAll()
     		    .requestMatchers(HttpMethod.POST, "/api/whatsapp/**").permitAll()
+    		    .requestMatchers(HttpMethod.GET, "/tradingpost/api/v1/users/all").hasAnyRole("ADMIN", "ROOT")
 
                 // Auth endpoints
                 .requestMatchers("/tradingpost/auth/**").permitAll()

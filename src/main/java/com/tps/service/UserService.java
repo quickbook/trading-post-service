@@ -2,6 +2,8 @@ package com.tps.service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import com.tps.dto.request.UserRequest;
 import com.tps.dto.response.LoginResponse;
 import com.tps.dto.response.RegisterResponse;
 import com.tps.dto.response.UserResponse;
+import com.tps.enums.RoleEnum;
 import com.tps.exceptions.DuplicateResourceException;
 import com.tps.exceptions.InvalidCredentialsException;
 import com.tps.exceptions.ResourceNotFoundException;
@@ -165,5 +168,23 @@ public class UserService {
        User updatedUser = userRepository.save(user);
         return userMapper.mapToUserResponse(updatedUser);
     }
+	
+	public List<UserResponse> getAllUsersByRole(String roleName) {
+	    List<User> allUsers = userRepository.findAll();
+
+	    if (RoleEnum.ROOT.name().equalsIgnoreCase(roleName)) {
+	        return allUsers.stream()
+	                .map(userMapper::mapToUserResponse)
+	                .collect(Collectors.toList());
+	    } else if (RoleEnum.ADMIN.name().equalsIgnoreCase(roleName)) {
+	        return allUsers.stream()
+	                .filter(u -> u.getRole() != null && 
+	                        RoleEnum.USER.name().equalsIgnoreCase(u.getRole().getName()))
+	                .map(userMapper::mapToUserResponse)
+	                .collect(Collectors.toList());
+	    }
+	    
+	    return List.of();
+	}
 
 }
