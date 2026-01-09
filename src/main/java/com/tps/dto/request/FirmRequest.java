@@ -2,6 +2,7 @@ package com.tps.dto.request;
 
  
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tps.dto.AboutDto;
 import com.tps.dto.TradingConditionsDto;
 
@@ -14,6 +15,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FirmRequest {
 	 private Long id; 
 	 

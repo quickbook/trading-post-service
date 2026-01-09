@@ -72,6 +72,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/firms/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/challenges/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/reviews/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/tradingpost/api/v1/enquiries/**").authenticated()
                
  
                 .requestMatchers(HttpMethod.PUT, "/tradingpost/api/v1/firms/**").hasRole("ADMIN")
